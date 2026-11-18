@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Kanto 151 Battle Arena</title>
+<style>
+:root{--bg:#f1f4fa;--panel:#ffffff;--panel2:#f6f8fc;--ink:#1a2030;--muted:#5d677c;--line:#d9dfea;--accent:#e3350d;--accent2:#2f6fed;--ok:#22a74b;--warn:#f0b400;--bad:#e3350d;--shadow:0 6px 18px rgba(20,30,60,.10)}
+@media (prefers-color-scheme: dark){:root{--bg:#0f1420;--panel:#171e2d;--panel2:#1d2638;--ink:#e9edf5;--muted:#9ba6bb;--line:#2b3549;--accent:#ff5533;--accent2:#5b8dff;--shadow:0 6px 18px rgba(0,0,0,.35)}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+.hidden{display:none !important}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px;padding-inline:20px;background:linear-gradient(90deg,#e3350d,#b81f00);color:#fff;box-shadow:var(--shadow)}
+header.top h1{margin:0;font-size:1.25rem;letter-spacing:.3px}
+header.top .sub{font-size:.8rem;opacity:.9}
+main{max-width:1240px;margin-inline:auto;padding:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.grid2{display:grid;grid-template-columns:minmax(320px,440px) 1fr;gap:16px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+h2{margin-block:0 10px;font-size:1.05rem}
+.btn{border:0;border-radius:10px;padding-block:9px;padding-inline:14px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff;transition:filter .15s,transform .05s}
+.btn:hover{filter:brightness(1.08)}.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.blue{background:var(--accent2)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.sm{padding-block:5px;padding-inline:10px;font-size:.82rem}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:.8rem}
+input[type=text],select{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding-block:7px;padding-inline:9px;min-width:0}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:.75rem;color:var(--muted)}
+label.f select,label.f input{font-size:.88rem;color:var(--ink)}
+.tbadge{display:inline-block;padding-block:1px;padding-inline:7px;border-radius:999px;font-size:.68rem;font-weight:800;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.4);margin-inline-end:3px;text-transform:uppercase;letter-spacing:.3px}
+/* dex */
+.dexbar{display:flex;gap:8px;margin-block-end:10px}
+.dexbar input{flex:1}
+.dex{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;max-height:640px;overflow-y:auto;padding-inline-end:4px}
+.dextile{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:4px;text-align:center;cursor:pointer;position:relative;transition:transform .1s,border-color .1s}
+.dextile:hover{transform:translateY(-2px);border-color:var(--accent2)}
+.dextile.inteam{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.dextile img{width:72px;height:72px;image-rendering:pixelated;display:block;margin-inline:auto}
+.dextile .n{font-size:.68rem;color:var(--muted)}
+.dextile .nm{font-size:.76rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* team */
+.slots{display:flex;flex-direction:column;gap:8px}
+.slot{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:6px;background:var(--panel2);cursor:pointer}
+.slot.sel{border-color:var(--accent2);box-shadow:0 0 0 2px var(--accent2) inset}
+.slot img{width:56px;height:56px;image-rendering:pixelated}
+.slot .info{flex:1;min-width:0}
+.slot .nm{font-weight:800}
+.slot .mv{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot.empty{justify-content:center;color:var(--muted);font-size:.85rem;min-height:70px;cursor:default;border-style:dashed}
+.editor{margin-block-start:12px;border-block-start:1px solid var(--line);padding-block-start:12px}
+.egrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.statrow{display:grid;grid-template-columns:34px 34px 1fr 40px;gap:6px;align-items:center;font-size:.75rem}
+.statbar{height:7px;border-radius:4px;background:var(--line);overflow:hidden}
+.statbar>div{height:100%}
+.play{margin-block-end:16px}
+.play .row+.row{margin-block-start:8px}
+.codebox{font-family:ui-monospace,Consolas,monospace;font-size:1.8rem;font-weight:800;letter-spacing:6px;padding-block:8px;padding-inline:14px;border-radius:10px;background:var(--panel2);border:1px dashed var(--accent2);display:inline-block}
+.notice{padding:10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-size:.85rem}
+.notice.err{border-color:var(--bad);color:var(--bad)}
+/* battle */
+.bwrap{display:grid;grid-template-columns:1fr 340px;gap:16px}
+@media (max-width:980px){.bwrap{grid-template-columns:1fr}}
+.arena{position:relative;height:400px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#8fd3ff 0%,#cdeeff 46%,#a7e08a 46%,#78c25a 100%);border:1px solid var(--line);box-shadow:var(--shadow);isolation:isolate}
+.arena .plat{position:absolute;border-radius:50%;background:radial-gradient(ellipse at center,#d9f0b8 0%,#9ccf72 60%,rgba(0,0,0,0) 72%)}
+.plat.foe{width:260px;height:70px;inset-block-start:165px;inset-inline-end:40px}
+.plat.me{width:320px;height:86px;inset-block-end:18px;inset-inline-start:30px}
+.mon{position:absolute;display:flex;align-items:flex-end;justify-content:center;z-index:2}
+.mon.foe{inset-block-start:40px;inset-inline-end:70px;width:200px;height:160px}
+.mon.me{inset-block-end:42px;inset-inline-start:60px;width:260px;height:200px}
+.mon img{transform-origin:50% 100%;transition:opacity .3s;filter:drop-shadow(0 6px 4px rgba(0,0,0,.25))}
+.mon.foe img{transform:scale(1.7)}
+.mon.me img{transform:scale(2.2)}
+.mon.tera img{filter:drop-shadow(0 0 6px var(--tera,#fff)) drop-shadow(0 0 14px var(--tera,#fff)) saturate(1.25)}
+.mon .sub{position:absolute;inset-block-end:0;font-size:3rem;display:none}
+.mon.hassub img{opacity:.25}.mon.hassub .sub{display:block}
+.hud{position:absolute;z-index:3;background:rgba(255,255,255,.92);color:#1a2030;border-radius:12px;padding-block:7px;padding-inline:11px;min-width:250px;box-shadow:0 4px 12px rgba(0,0,0,.18);border:1px solid rgba(0,0,0,.08)}
+.hud.foe{inset-block-start:14px;inset-inline-start:14px}
+.hud.me{inset-block-end:14px;inset-inline-end:14px}
+.hud .nm{display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:800}
+.hud .lv{font-size:.75rem;font-weight:700;color:#5d677c}
+.hpbar{height:9px;border-radius:5px;background:#d6dbe5;overflow:hidden;margin-block:5px 2px;position:relative}
+.hpbar>div{position:absolute;inset:0;width:100%;background:#22c55e;transition:width .7s ease,background-color .5s}
+.hud .hpt{font-size:.72rem;color:#5d677c;display:flex;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:3px;margin-block-start:3px;min-height:4px}
+.chip{font-size:.62rem;font-weight:800;border-radius:5px;padding-inline:5px;padding-block:1px;color:#fff;background:#6b7280}
+.chip.up{background:#2563eb}.chip.down{background:#dc2626}
+.st-brn{background:#e3350d}.st-par{background:#d8a400}.st-slp{background:#8a8f9c}.st-frz{background:#3dcef3}.st-psn,.st-tox{background:#9141cb}
+.balls{display:flex;gap:3px;margin-block-start:4px}
+.balls span{width:11px;height:11px;border-radius:50%;background:linear-gradient(#e3350d 50%,#fff 50%);border:1.5px solid #333;display:inline-block}
+.balls span.f{background:#9aa0aa;opacity:.6}
+.balls span.u{background:#e5e7eb;opacity:.7}
+.fieldfx{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .6s}
+.fieldfx.on{opacity:1}
+.fx-RainDance,.fx-PrimordialSea{background:repeating-linear-gradient(105deg,rgba(40,90,200,.0) 0 14px,rgba(80,130,255,.35) 14px 16px);background-size:200px 200px;animation:rain .5s linear infinite;box-shadow:inset 0 0 0 999px rgba(30,60,140,.18)}
+@keyframes rain{to{background-position:-40px 200px}}
+.fx-SunnyDay,.fx-DesolateLand{background:radial-gradient(circle at 85% 0%,rgba(255,220,80,.75),rgba(255,170,0,.15) 45%,rgba(255,170,0,0) 70%)}
+.fx-Sandstorm{background:repeating-linear-gradient(170deg,rgba(190,150,80,.25) 0 6px,rgba(220,190,120,.35) 6px 9px);background-size:300px 300px;animation:sand 1.2s linear infinite;box-shadow:inset 0 0 0 999px rgba(170,130,60,.2)}
+@keyframes sand{to{background-position:300px 40px}}
+.fx-Snowscape,.fx-Hail{background-image:radial-gradient(#fff 1.5px,transparent 2px),radial-gradient(#fff 1px,transparent 1.5px);background-size:40px 40px,25px 25px;animation:snow 3s linear infinite;box-shadow:inset 0 0 0 999px rgba(200,230,255,.25)}
+@keyframes snow{to{background-position:20px 40px,-10px 25px}}
+.fieldlbl{position:absolute;inset-block-start:10px;inset-inline-end:12px;z-index:3;display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+.fieldlbl span{background:rgba(0,0,0,.55);color:#fff;font-size:.68rem;font-weight:700;border-radius:6px;padding-inline:6px;padding-block:2px}
+.turnlbl{position:absolute;inset-block-start:50%;inset-inline-start:50%;translate:-50% -50%;z-index:4;font-weight:900;font-size:1.6rem;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);opacity:0;pointer-events:none}
+.turnlbl.go{animation:turnpop 1s ease}
+@keyframes turnpop{0%{opacity:0;scale:.6}25%{opacity:1;scale:1.05}75%{opacity:1;scale:1}100%{opacity:0;scale:1}}
+.float{position:absolute;z-index:5;font-weight:900;font-size:1.1rem;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.6);color:#fff;animation:floatup 1s ease forwards}
+@keyframes floatup{from{opacity:1;translate:0 0}to{opacity:0;translate:0 -50px}}
+.proj{position:absolute;z-index:4;width:26px;height:26px;border-radius:50%;pointer-events:none;mix-blend-mode:normal}
+.flashscreen{position:absolute;inset:0;z-index:6;pointer-events:none;background:#fff;opacity:0}
+.msgbar{position:absolute;inset-inline:0;inset-block-end:0;z-index:2;height:0}
+/* controls */
+.ctl{margin-block-start:12px}
+.prompt{font-weight:800;margin-block-end:8px;min-height:1.3em}
+.moves{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:560px){.moves{grid-template-columns:1fr}}
+.move{border:0;border-radius:12px;padding-block:9px;padding-inline:12px;text-align:start;color:#fff;cursor:pointer;text-shadow:0 1px 2px rgba(0,0,0,.45);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);transition:filter .12s,transform .05s;position:relative}
+.move:hover{filter:brightness(1.1)}.move:active{transform:translateY(1px)}
+.move:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.4)}
+.move b{display:block;font-size:.98rem}
+.move small{font-size:.72rem;opacity:.95}
+.move .eff{position:absolute;inset-block-start:7px;inset-inline-end:8px;font-size:.62rem;font-weight:800;background:rgba(0,0,0,.3);border-radius:6px;padding-inline:5px}
+.switches{display:flex;flex-wrap:wrap;gap:6px;margin-block-start:10px}
+.swbtn{display:flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding-block:3px;padding-inline:4px 9px;cursor:pointer;font-size:.8rem;font-weight:700}
+.swbtn img{width:40px;height:40px;image-rendering:pixelated}
+.swbtn:disabled{opacity:.4;cursor:not-allowed}
+.swbtn .hpm{display:block;height:4px;border-radius:2px;background:var(--line);width:60px;overflow:hidden;margin-block-start:2px}
+.swbtn .hpm>i{display:block;height:100%;background:#22c55e}
+.terabtn{border:2px solid transparent;border-radius:10px;padding-block:6px;padding-inline:12px;font-weight:800;cursor:pointer;background:var(--panel2);color:var(--ink)}
+.terabtn.on{border-color:#fff;color:#fff;box-shadow:0 0 12px var(--tera)}
+.log{height:470px;overflow-y:auto;font-size:.84rem;line-height:1.45;padding-inline-end:4px}
+.log p{margin-block:0 3px}
+.log .turn{font-weight:900;margin-block:10px 4px;padding-block:3px;padding-inline:8px;background:var(--panel2);border-radius:6px}
+.log .se{color:#16a34a;font-weight:700}.log .nve{color:#d97706;font-weight:700}.log .crit{color:var(--accent);font-weight:800}
+.log .minor{color:var(--muted);font-size:.78rem}
+.log .chat{color:var(--accent2)}
+.log .err{color:var(--bad);font-weight:700}
+.log .big{font-weight:900;font-size:1rem}
+.chatrow{display:flex;gap:6px;margin-block-start:8px}
+.chatrow input{flex:1}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay .box{background:var(--panel);border-radius:16px;padding:20px;max-width:760px;width:100%;box-shadow:var(--shadow);max-height:90vh;overflow-y:auto}
+.prevteam{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-block:8px 14px}
+.prevmon{border:1px solid var(--line);border-radius:10px;padding:6px;text-align:center;background:var(--panel2);font-size:.78rem;font-weight:700}
+button.prevmon{cursor:pointer}
+button.prevmon:hover{border-color:var(--accent2)}
+.prevmon img{width:72px;height:72px;image-rendering:pixelated;display:block;margin-inline:auto}
+.winner{font-size:1.7rem;font-weight:900;text-align:center;margin-block:6px 14px}
+footer{text-align:center;color:var(--muted);font-size:.74rem;padding-block:6px 22px;padding-inline:16px}
+/* sprite animations */
+@keyframes enter{0%{opacity:0;scale:.1;filter:brightness(6)}60%{opacity:1;scale:1.08;filter:brightness(2)}100%{opacity:1;scale:1;filter:brightness(1)}}
+@keyframes faint{to{opacity:0;translate:0 70px}}
+@keyframes hit{0%,100%{translate:0 0;opacity:1}15%{translate:-10px 0;opacity:.2}30%{translate:10px 0;opacity:1}45%{translate:-7px 0;opacity:.2}60%{translate:6px 0;opacity:1}80%{translate:-3px 0}}
+@keyframes lungeMe{0%,100%{translate:0 0}40%{translate:46px -26px}}
+@keyframes lungeFoe{0%,100%{translate:0 0}40%{translate:-40px 22px}}
+@keyframes statusFx{0%,100%{filter:none}50%{filter:brightness(1.6) saturate(1.6)}}
+@keyframes boostUp{0%,100%{filter:none}50%{filter:brightness(1.5) hue-rotate(-20deg) drop-shadow(0 0 10px #ef4444)}}
+@keyframes boostDown{0%,100%{filter:none}50%{filter:brightness(.8) drop-shadow(0 0 10px #3b82f6)}}
+@keyframes heal{0%,100%{filter:none}50%{filter:brightness(1.4) drop-shadow(0 0 12px #4ade80)}}
+@keyframes teraburst{0%{filter:brightness(1)}40%{filter:brightness(4) drop-shadow(0 0 30px var(--tera,#fff))}100%{filter:brightness(1)}}
+
+</style>
+</head>
+<body>
+<header class="top">
+  <div><h1>⚔️ Kanto 151 Battle Arena</h1><div class="sub">All 151 original Pokémon · Generation 9 battle rules · Battle your friends online</div></div>
+</header>
+<main>
+  <section id="loading" class="panel" style="text-align:center;max-width:640px;margin-inline:auto">
+    <h2>Loading the battle engine…</h2>
+    <p class="muted" id="loadMsg">This takes a few seconds the first time.</p>
+  </section>
+
+  <section id="home" class="hidden">
+    <div class="panel play">
+      <div class="row spread">
+        <h2 style="margin:0">Play</h2>
+        <span class="muted small" id="playHint"></span>
+      </div>
+      <div class="row" style="margin-block-start:10px">
+        <label class="f">Your trainer name<input type="text" id="playerName" maxlength="18" placeholder="Trainer" autocomplete="off"></label>
+        <button type="button" class="btn" id="hostBtn">Create online battle</button>
+        <form id="joinForm" class="row" style="gap:6px">
+          <input type="text" id="joinCode" maxlength="6" placeholder="Battle code" autocomplete="off" style="width:120px;text-transform:uppercase">
+          <button type="submit" class="btn blue" id="joinBtn">Join</button>
+        </form>
+        <button type="button" class="btn ghost" id="practiceBtn">Practice vs computer</button>
+      </div>
+    </div>
+    <div id="teamNotice" class="notice hidden" style="margin-block-end:12px"></div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="row spread"><h2 style="margin:0">Your team <span class="muted small" id="teamCount"></span></h2>
+          <div class="row"><button type="button" class="btn ghost sm" id="randomBtn">Random team</button><button type="button" class="btn ghost sm" id="clearBtn">Clear</button></div></div>
+        <div id="slots" class="slots" style="margin-block-start:10px"></div>
+        <div id="editor" class="editor hidden"></div>
+      </div>
+      <div class="panel">
+        <div class="row spread"><h2 style="margin:0">Pokédex</h2><span class="muted small" id="dexCount"></span></div>
+        <div class="dexbar" style="margin-block-start:10px"><input type="text" id="dexSearch" placeholder="Search by name, number or type (e.g. fire)" autocomplete="off"></div>
+        <div id="dex" class="dex"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="lobby" class="hidden"></section>
+  <section id="battle" class="hidden"></section>
+</main>
+<footer>
+  Fan-made, non-commercial project for private play with friends. Pokémon and all related names are trademarks of Nintendo, Game Freak and The Pokémon Company.
+  Battle mechanics: the open-source Pokémon Showdown simulator (MIT licence). Sprites: the PokéAPI sprite collection.
+</footer>
+<script>
+(function () {
+  setTimeout(function () {
+    if (window.__kantoReady) return;
+    var m = document.getElementById('loadMsg');
+    if (m) m.textContent = 'The battle engine could not be loaded. Check your internet connection and reload the page. (Opening the file directly from your computer works in most browsers; if it does not, host it on a website such as GitHub Pages.)';
+  }, 25000);
+})();
+</script>
+<script type="module">
+import { Dex, BattleStreams, RandomPlayerAI } from 'https://cdn.jsdelivr.net/npm/@pkmn/sim@0.10.13/+esm';
+import { Peer } from 'https://cdn.jsdelivr.net/npm/peerjs@1.5.5/+esm';
+
+/* =====================================================================
+   Kanto 151 Battle Arena
+   - Battle mechanics: Pokémon Showdown's simulator (@pkmn/sim), Gen 9 rules
+   - Online play: peer-to-peer (WebRTC via PeerJS). Every battle is its own
+     direct connection, so any number of battles can run at once.
+   ===================================================================== */
+const APP_VERSION = '1.0.0';
+const PEER_PREFIX = 'kanto151-arena-v1-';
+// To use your own matchmaking server later, put its settings here, e.g.
+// { host: 'your-peer-server.example.com', port: 443, path: '/', secure: true }
+const PEER_OPTIONS = { debug: 1 };
+const SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
+const FORMAT = (() => {
+  for (const f of ['gen9customgame', 'gen9anythinggoes', 'gen9ou']) {
+    try { if (Dex.formats.get(f).exists) return f; } catch (e) { /* try next */ }
+  }
+  return 'gen9customgame';
+})();
+
+const TYPES = ['Normal','Fire','Water','Electric','Grass','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel','Fairy'];
+const TYPE_COLORS = {Normal:'#9fa19f',Fire:'#e62829',Water:'#2980ef',Electric:'#d8b400',Grass:'#3fa129',Ice:'#3dcef3',Fighting:'#ff8000',Poison:'#9141cb',Ground:'#915121',Flying:'#81b9ef',Psychic:'#ef4179',Bug:'#91a119',Rock:'#afa981',Ghost:'#704170',Dragon:'#5060e1',Dark:'#624d4e',Steel:'#60a1b8',Fairy:'#ef70ef',Stellar:'#40b5a5','???':'#68a090'};
+const STAT_NAMES = {hp:'HP',atk:'Attack',def:'Defense',spa:'Sp. Atk',spd:'Sp. Def',spe:'Speed',accuracy:'accuracy',evasion:'evasiveness'};
+const STAT_SHORT = {hp:'HP',atk:'Atk',def:'Def',spa:'SpA',spd:'SpD',spe:'Spe',accuracy:'Acc',evasion:'Eva'};
+const ITEM_CANDIDATES = ['Leftovers','Life Orb','Choice Band','Choice Specs','Choice Scarf','Focus Sash','Heavy-Duty Boots','Assault Vest','Eviolite','Rocky Helmet','Sitrus Berry','Lum Berry','Expert Belt','Black Sludge','Light Clay','Weakness Policy','Covert Cloak','Clear Amulet','Loaded Dice','Mirror Herb','White Herb','Air Balloon','Shell Bell','Muscle Band','Wise Glasses','Scope Lens','Quick Claw','King\'s Rock','Booster Energy','Throat Spray'];
+const ITEMS = ITEM_CANDIDATES.filter(n => { try { const it = Dex.items.get(n); return it.exists && !it.isNonstandard; } catch (e) { return false; } });
+const NATURES = (() => { try { return Dex.natures.all().map(n => n.name).sort(); } catch (e) { return ['Hardy']; } })();
+const EV_PRESETS = {
+  physical: {label:'Fast physical attacker', evs:{hp:4,atk:252,def:0,spa:0,spd:0,spe:252}},
+  special:  {label:'Fast special attacker',  evs:{hp:4,atk:0,def:0,spa:252,spd:0,spe:252}},
+  bulkyatk: {label:'Bulky physical attacker',evs:{hp:252,atk:252,def:0,spa:0,spd:4,spe:0}},
+  bulkyspa: {label:'Bulky special attacker', evs:{hp:252,atk:0,def:0,spa:252,spd:4,spe:0}},
+  phystank: {label:'Physical wall',          evs:{hp:252,atk:0,def:252,spa:0,spd:4,spe:0}},
+  spectank: {label:'Special wall',           evs:{hp:252,atk:0,def:4,spa:0,spd:252,spe:0}},
+  balanced: {label:'Balanced',               evs:{hp:84,atk:84,def:84,spa:84,spd:84,spe:84}},
+};
+const IVS = {hp:31,atk:31,def:31,spa:31,spd:31,spe:31};
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  if (props) for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'html') e.innerHTML = v;
+    else if (k === 'style') e.style.cssText = v;
+    else if (k === 'on') for (const [ev, fn] of Object.entries(v)) e.addEventListener(ev, fn);
+    else if (k in e && k !== 'list') e[k] = v;
+    else e.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) e.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  return e;
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toID = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+const badge = t => h('span', {class:'tbadge', style:`background:${TYPE_COLORS[t] || '#777'}`, text:t});
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+/* ---------- Pokédex (#1–#151) ---------- */
+const KANTO = (() => {
+  const byNum = new Map();
+  for (const s of Dex.species.all()) {
+    if (s.num >= 1 && s.num <= 151 && !s.forme && s.name === s.baseSpecies && !byNum.has(s.num)) byNum.set(s.num, s);
+  }
+  return [...byNum.values()].sort((a, b) => a.num - b.num);
+})();
+const KANTO_IDS = new Set(KANTO.map(s => s.id));
+function numOf(speciesName) { const s = Dex.species.get(speciesName); return s && s.exists ? s.num : 0; }
+
+const spriteURL = {
+  front: n => `${SPRITE_BASE}other/showdown/${n}.gif`,
+  back:  n => `${SPRITE_BASE}other/showdown/back/${n}.gif`,
+  frontStatic: n => `${SPRITE_BASE}${n}.png`,
+  backStatic:  n => `${SPRITE_BASE}back/${n}.png`,
+  icon: n => `${SPRITE_BASE}${n}.png`,
+};
+function setSprite(img, num, back) {
+  const chain = back ? [spriteURL.back(num), spriteURL.backStatic(num)] : [spriteURL.front(num), spriteURL.frontStatic(num)];
+  let i = 0;
+  img.addEventListener('error', function onErr() {
+    i++;
+    if (i < chain.length) img.src = chain[i]; else img.removeEventListener('error', onErr);
+  });
+  img.src = chain[0];
+}
+function iconImg(num, alt) { return h('img', {src: spriteURL.icon(num), alt: alt || '', loading: 'lazy', decoding: 'async'}); }
+
+/* ---------- learnsets (Gen 9 legality) ---------- */
+async function rawLearnset(id) {
+  try { if (Dex.species.getLearnsetData) { const d = Dex.species.getLearnsetData(id); if (d && d.learnset) return d.learnset; } } catch (e) { /* fall through */ }
+  try { const L = Dex.data && Dex.data.Learnsets; if (L && L[id] && L[id].learnset) return L[id].learnset; } catch (e) { /* fall through */ }
+  try { if (Dex.learnsets && Dex.learnsets.get) { const d = await Dex.learnsets.get(id); if (d && d.learnset) return d.learnset; } } catch (e) { /* fall through */ }
+  return {};
+}
+const legalCache = new Map();
+async function legalMoves(speciesName) {
+  const sp = Dex.species.get(speciesName);
+  if (legalCache.has(sp.id)) return legalCache.get(sp.id);
+  const sources = {};
+  const seen = new Set();
+  let cur = sp;
+  while (cur && cur.exists && !seen.has(cur.id)) {
+    seen.add(cur.id);
+    const ls = await rawLearnset(cur.id);
+    for (const [m, src] of Object.entries(ls)) (sources[m] = sources[m] || []).push(...(Array.isArray(src) ? src : []));
+    cur = cur.prevo ? Dex.species.get(cur.prevo) : null;
+  }
+  // If the species is in Scarlet/Violet, only moves it can learn in Gen 9 are allowed.
+  const inGen9 = Object.values(sources).some(a => a.some(x => String(x).startsWith('9')));
+  const moves = Object.keys(sources)
+    .filter(id => !inGen9 || sources[id].some(x => String(x).startsWith('9')))
+    .map(id => Dex.moves.get(id))
+    .filter(m => m.exists && !m.isNonstandard && !m.isZ && !m.isMax)
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const res = {moves, ids: new Set(moves.map(m => m.id)), inGen9};
+  legalCache.set(sp.id, res);
+  return res;
+}
+
+/* ---------- automatic competitive set ---------- */
+const AVOID = new Set(['hyperbeam','gigaimpact','solarbeam','solarblade','skyattack','skullbash','razorwind','meteorbeam','explosion','selfdestruct','mistyexplosion','focuspunch','fissure','guillotine','horndrill','sheercold','dreameater','lastresort','belch','synchronoise','futuresight','doomdesire','snore','fling','naturalgift','spitup','counter','mirrorcoat','metalburst','bide','endeavor','finalgambit','steelbeam','mindblown','burnup','doubleshock','rollout','iceball','uproar','thrash','petaldance','outrage','ragingfury','dig','dive','fly','bounce','phantomforce','shadowforce','freezeshock','iceburn','geomance','electroshot','hyperdrill','dynamaxcannon','eternabeam','prismaticlaser','roaroftime','blastburn','hydrocannon','frenzyplant','rockwrecker','focusblast','zapcannon','inferno','dynamicpunch','gigatonhammer','skydrop','struggle','present','magnitude','trumpcard','wringout','crushgrip','return','frustration','facade','hex','venoshock','acrobatics','storedpower','powertrip','electroball','gyroball','heavyslam','heatcrash','grassknot','lowkick','punishment','reversal','flail','eruption','waterspout','dragonenergy','beatup','spitup','holdback','falseswipe','feint','fakeout','firstimpression','suckerpunch','pursuit','payback','avalanche','revenge','assurance','round','echoedvoice','furycutter','rage','smellingsalts','wakeupslap','stompingtantrum','temperflare','lashout','ficklebeam','lastrespects','ragefist','terablast','alluringvoice','burningjealousy','hardpress']);
+const GOOD_STATUS = ['swordsdance','dragondance','nastyplot','quiverdance','shellsmash','calmmind','bulkup','spore','sleeppowder','recover','softboiled','slackoff','roost','milkdrink','moonlight','synthesis','morningsun','willowisp','toxic','thunderwave','stunspore','stealthrock','leechseed','substitute','protect','glare','agility','rest'];
+function moveScore(m, sp) {
+  if (m.category === 'Status' || AVOID.has(m.id)) return 0;
+  let bp = m.basePower || 0;
+  if (!bp) return 0;
+  if (m.multihit) bp *= Array.isArray(m.multihit) ? 3 : m.multihit;
+  const acc = m.accuracy === true ? 100 : (m.accuracy || 0);
+  const stat = m.category === 'Physical' ? sp.baseStats.atk : sp.baseStats.spa;
+  let score = bp * (acc / 100) * stat;
+  if (sp.types.includes(m.type)) score *= 1.5;
+  if (m.recoil || m.hasCrashDamage) score *= 0.9;
+  if (m.selfBoost || (m.self && m.self.boosts)) score *= 0.95;
+  if (m.flags && (m.flags.charge || m.flags.recharge)) score *= 0.3;
+  if (m.priority > 0) score *= 0.85;
+  if (bp < 50 && !(m.priority > 0)) score *= 0.5;
+  return score;
+}
+function autoSet(sp, legal) {
+  const moves = legal.moves;
+  const scored = moves.map(m => ({m, s: moveScore(m, sp)})).filter(x => x.s > 0).sort((a, b) => b.s - a.s);
+  const chosen = [];
+  const typesUsed = new Set();
+  for (const t of sp.types) {
+    const best = scored.find(x => x.m.type === t && !chosen.includes(x.m));
+    if (best) { chosen.push(best.m); typesUsed.add(t); }
+  }
+  const status = GOOD_STATUS.map(id => moves.find(m => m.id === id)).find(Boolean);
+  const attackSlots = status ? 3 : 4;
+  for (const x of scored) {
+    if (chosen.length >= attackSlots) break;
+    if (!typesUsed.has(x.m.type)) { chosen.push(x.m); typesUsed.add(x.m.type); }
+  }
+  for (const x of scored) { if (chosen.length >= attackSlots) break; if (!chosen.includes(x.m)) chosen.push(x.m); }
+  if (status && chosen.length < 4) chosen.push(status);
+  for (const m of moves) { if (chosen.length >= 4) break; if (!chosen.includes(m)) chosen.push(m); }
+  const physical = sp.baseStats.atk >= sp.baseStats.spa;
+  const fast = sp.baseStats.spe >= 80;
+  const bulky = sp.baseStats.hp + sp.baseStats.def + sp.baseStats.spd > 300 && !fast;
+  const preset = bulky ? (physical ? 'bulkyatk' : 'bulkyspa') : (physical ? 'physical' : 'special');
+  const nature = physical ? (fast ? 'Jolly' : 'Adamant') : (fast ? 'Timid' : 'Modest');
+  const abilities = Object.values(sp.abilities);
+  let item = 'Leftovers';
+  if (sp.nfe && ITEMS.includes('Eviolite')) item = 'Eviolite';
+  else if (fast && !bulky && ITEMS.includes('Life Orb')) item = 'Life Orb';
+  if (!ITEMS.includes(item)) item = ITEMS[0] || '';
+  return {
+    name: sp.name, species: sp.name, item, ability: abilities[0], moves: chosen.slice(0, 4).map(m => m.name),
+    nature: NATURES.includes(nature) ? nature : NATURES[0], evs: {...EV_PRESETS[preset].evs}, ivs: {...IVS},
+    level: 100, gender: '', teraType: sp.types[0], preset,
+  };
+}
+
+/* ---------- team validation (used by the host for both players) ---------- */
+async function validateTeam(team) {
+  if (!Array.isArray(team) || team.length < 1 || team.length > 6) return {error: 'A team needs 1 to 6 Pokémon.'};
+  const seen = new Set();
+  const clean = [];
+  for (const raw of team) {
+    if (!raw || typeof raw !== 'object') return {error: 'A team member is not valid.'};
+    const sp = Dex.species.get(String(raw.species || ''));
+    if (!sp.exists || !KANTO_IDS.has(sp.id)) return {error: `${raw.species} is not one of the original 151.`};
+    if (seen.has(sp.id)) return {error: `Only one ${sp.name} is allowed per team.`};
+    seen.add(sp.id);
+    const legal = await legalMoves(sp.name);
+    const moves = Array.isArray(raw.moves) ? raw.moves.map(String) : [];
+    if (moves.length < 1 || moves.length > 4) return {error: `${sp.name} needs 1 to 4 moves.`};
+    const moveIds = moves.map(toID);
+    if (new Set(moveIds).size !== moveIds.length) return {error: `${sp.name} has the same move twice.`};
+    for (const id of moveIds) if (!legal.ids.has(id)) return {error: `${sp.name} can't learn ${id} in Generation 9.`};
+    const abilities = Object.values(sp.abilities);
+    if (!abilities.includes(raw.ability)) return {error: `${sp.name} can't have the ability ${raw.ability}.`};
+    const item = raw.item ? String(raw.item) : '';
+    if (item && !ITEMS.includes(item)) return {error: `${item} is not an allowed item.`};
+    if (!NATURES.includes(raw.nature)) return {error: `${raw.nature} is not a nature.`};
+    const evs = {}, ivs = {};
+    let total = 0;
+    for (const s of ['hp','atk','def','spa','spd','spe']) {
+      const ev = Number(raw.evs && raw.evs[s] || 0), iv = Number(raw.ivs && raw.ivs[s] != null ? raw.ivs[s] : 31);
+      if (!Number.isInteger(ev) || ev < 0 || ev > 252) return {error: `${sp.name} has invalid EVs.`};
+      if (!Number.isInteger(iv) || iv < 0 || iv > 31) return {error: `${sp.name} has invalid IVs.`};
+      evs[s] = ev; ivs[s] = iv; total += ev;
+    }
+    if (total > 510) return {error: `${sp.name} has more than 510 EVs.`};
+    if (!TYPES.includes(raw.teraType)) return {error: `${sp.name} has an invalid Tera Type.`};
+    clean.push({name: sp.name, species: sp.name, item, ability: raw.ability, moves: moveIds.map(id => Dex.moves.get(id).name),
+      nature: raw.nature, evs, ivs, level: 100, gender: '', teraType: raw.teraType});
+  }
+  return {team: clean};
+}
+
+/* ---------- stat calc (display only) ---------- */
+function calcStats(set) {
+  const sp = Dex.species.get(set.species); const nat = Dex.natures.get(set.nature);
+  const out = {};
+  for (const s of ['hp','atk','def','spa','spd','spe']) {
+    const b = sp.baseStats[s], iv = set.ivs[s], ev = set.evs[s], L = set.level;
+    if (s === 'hp') out[s] = Math.floor((2 * b + iv + Math.floor(ev / 4)) * L / 100) + L + 10;
+    else {
+      let v = Math.floor((2 * b + iv + Math.floor(ev / 4)) * L / 100) + 5;
+      if (nat.plus === s) v = Math.floor(v * 1.1); if (nat.minus === s) v = Math.floor(v * 0.9);
+      out[s] = v;
+    }
+  }
+  return out;
+}
+
+/* =====================================================================
+   Team builder
+   ===================================================================== */
+const STORE_KEY = 'kanto151.team.v1';
+const NAME_KEY = 'kanto151.name.v1';
+let team = [];
+let selected = -1;
+function saveTeam() { try { localStorage.setItem(STORE_KEY, JSON.stringify(team)); } catch (e) { /* storage may be blocked */ } }
+function loadTeam() {
+  try {
+    const t = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+    if (Array.isArray(t)) team = t.filter(s => s && KANTO_IDS.has(toID(s.species))).slice(0, 6);
+  } catch (e) { team = []; }
+}
+
+function renderDex() {
+  const q = toID($('#dexSearch').value);
+  const box = $('#dex'); box.textContent = '';
+  const inTeam = new Set(team.map(s => toID(s.species)));
+  for (const sp of KANTO) {
+    if (q && !sp.id.includes(q) && String(sp.num) !== q && !sp.types.some(t => toID(t) === q)) continue;
+    const tile = h('button', {type: 'button', class: 'dextile' + (inTeam.has(sp.id) ? ' inteam' : ''), title: `${sp.name} (${sp.types.join('/')})`,
+      on: {click: () => addToTeam(sp)}},
+      iconImg(sp.num, sp.name), h('div', {class: 'n', text: '#' + String(sp.num).padStart(3, '0')}), h('div', {class: 'nm', text: sp.name}),
+      h('div', null, ...sp.types.map(badge)));
+    box.append(tile);
+  }
+}
+
+async function addToTeam(sp) {
+  const idx = team.findIndex(s => toID(s.species) === sp.id);
+  if (idx >= 0) { selected = idx; renderTeam(); return; }
+  if (team.length >= 6) { flashNotice('Your team is full (6). Remove one first.'); return; }
+  const legal = await legalMoves(sp.name);
+  team.push(autoSet(sp, legal));
+  selected = team.length - 1;
+  saveTeam(); renderTeam(); renderDex();
+}
+function removeFromTeam(i) { team.splice(i, 1); if (selected >= team.length) selected = team.length - 1; saveTeam(); renderTeam(); renderDex(); }
+
+async function randomTeam() {
+  const pool = [...KANTO];
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  // prefer fully-evolved Pokémon for a fair random team
+  const picks = pool.filter(s => !s.nfe).slice(0, 6);
+  team = [];
+  for (const sp of picks) team.push(autoSet(sp, await legalMoves(sp.name)));
+  selected = 0; saveTeam(); renderTeam(); renderDex();
+}
+
+function flashNotice(msg, isErr) {
+  const n = $('#teamNotice'); n.textContent = msg; n.className = 'notice' + (isErr ? ' err' : ''); n.classList.remove('hidden');
+  clearTimeout(flashNotice.t); flashNotice.t = setTimeout(() => n.classList.add('hidden'), 4000);
+}
+
+function renderTeam() {
+  const box = $('#slots'); box.textContent = '';
+  team.forEach((set, i) => {
+    const sp = Dex.species.get(set.species);
+    box.append(h('div', {class: 'slot' + (i === selected ? ' sel' : ''), on: {click: () => { selected = i; renderTeam(); }}},
+      iconImg(sp.num, sp.name),
+      h('div', {class: 'info'}, h('div', {class: 'nm'}, sp.name + ' ', ...sp.types.map(badge)),
+        h('div', {class: 'mv', text: set.moves.join(' · ') || 'No moves'}),
+        h('div', {class: 'mv', text: `${set.ability} · ${set.item || 'No item'} · Tera ${set.teraType}`})),
+      h('button', {type: 'button', class: 'btn ghost sm', text: '✕', title: 'Remove', on: {click: e => { e.stopPropagation(); removeFromTeam(i); }}})));
+  });
+  for (let i = team.length; i < 6; i++) box.append(h('div', {class: 'slot empty', text: 'Empty slot — pick a Pokémon from the Pokédex'}));
+  $('#teamCount').textContent = `${team.length}/6`;
+  renderEditor();
+  updatePlayButtons();
+}
+
+async function renderEditor() {
+  const ed = $('#editor'); ed.textContent = '';
+  if (selected < 0 || !team[selected]) { ed.classList.add('hidden'); return; }
+  ed.classList.remove('hidden');
+  const set = team[selected];
+  const sp = Dex.species.get(set.species);
+  const legal = await legalMoves(sp.name);
+  if (team[selected] !== set) return; // selection changed while loading
+  const commit = () => { saveTeam(); renderTeamListOnly(); renderStats(); };
+  const sel = (label, options, value, onChange) => {
+    const s = h('select', {on: {change: e => onChange(e.target.value)}});
+    for (const o of options) { const [v, t] = Array.isArray(o) ? o : [o, o]; s.append(h('option', {value: v, text: t, selected: v === value})); }
+    return h('label', {class: 'f'}, label, s);
+  };
+  const moveOpts = [['', '— none —'], ...legal.moves.map(m => [m.name, `${m.name} · ${m.type} · ${m.category === 'Status' ? 'Status' : (m.basePower || '—') + ' BP'}`])];
+  const grid = h('div', {class: 'egrid'});
+  for (let k = 0; k < 4; k++) {
+    grid.append(sel(`Move ${k + 1}`, moveOpts, set.moves[k] || '', v => {
+      const mv = set.moves.slice(); mv[k] = v;
+      const cleaned = []; for (const m of mv) if (m && !cleaned.includes(m)) cleaned.push(m);
+      set.moves = cleaned; commit(); renderEditor();
+    }));
+  }
+  grid.append(sel('Ability', Object.values(sp.abilities), set.ability, v => { set.ability = v; commit(); }));
+  grid.append(sel('Item', [['', '— none —'], ...ITEMS], set.item, v => { set.item = v; commit(); }));
+  grid.append(sel('Nature', NATURES.map(n => { const nt = Dex.natures.get(n); return [n, nt.plus ? `${n} (+${STAT_SHORT[nt.plus]} −${STAT_SHORT[nt.minus]})` : `${n} (neutral)`]; }), set.nature, v => { set.nature = v; commit(); }));
+  grid.append(sel('EV spread', Object.entries(EV_PRESETS).map(([k, p]) => [k, p.label]), set.preset || '', v => { set.preset = v; set.evs = {...EV_PRESETS[v].evs}; commit(); }));
+  grid.append(sel('Tera Type', TYPES, set.teraType, v => { set.teraType = v; commit(); }));
+  grid.append(h('div', {class: 'row', style: 'align-items:flex-end'}, h('button', {type: 'button', class: 'btn ghost sm', text: 'Auto-pick a set', on: {click: () => { team[selected] = autoSet(sp, legal); saveTeam(); renderTeam(); }}})));
+  ed.append(h('div', {class: 'row spread'}, h('h2', {style: 'margin:0', text: `Edit ${sp.name}`}), h('span', {class: 'muted small', text: legal.inGen9 ? 'Gen 9 learnset' : 'Not in Scarlet/Violet: current moves only'})),
+    grid, h('div', {id: 'statBox', style: 'margin-block-start:10px'}));
+  renderStats();
+}
+function renderStats() {
+  const box = $('#statBox'); if (!box || !team[selected]) return;
+  const set = team[selected]; const sp = Dex.species.get(set.species); const st = calcStats(set);
+  box.textContent = '';
+  for (const s of ['hp','atk','def','spa','spd','spe']) {
+    const b = sp.baseStats[s];
+    const col = b >= 120 ? '#16a34a' : b >= 90 ? '#65a30d' : b >= 60 ? '#eab308' : '#ef4444';
+    box.append(h('div', {class: 'statrow'}, h('span', {class: 'muted', text: STAT_SHORT[s]}), h('b', {text: b}),
+      h('div', {class: 'statbar'}, h('div', {style: `width:${clamp(b / 180 * 100, 3, 100)}%;background:${col}`})), h('span', {class: 'muted', text: st[s]})));
+  }
+  box.append(h('div', {class: 'muted small', text: 'Base stat · bar · stat at level 100'}));
+}
+function renderTeamListOnly() {
+  const slots = document.querySelectorAll('#slots .slot:not(.empty)');
+  team.forEach((set, i) => { const el = slots[i]; if (!el) return; const mv = el.querySelectorAll('.mv');
+    if (mv[0]) mv[0].textContent = set.moves.join(' · ') || 'No moves';
+    if (mv[1]) mv[1].textContent = `${set.ability} · ${set.item || 'No item'} · Tera ${set.teraType}`; });
+  updatePlayButtons();
+}
+function teamReady() { return team.length >= 1 && team.every(s => s.moves.length >= 1); }
+function playerName() { const n = ($('#playerName').value || '').trim().replace(/[|\n\r]/g, '').slice(0, 18); return n || 'Trainer'; }
+function updatePlayButtons() {
+  const ok = teamReady();
+  for (const id of ['#hostBtn', '#joinBtn', '#practiceBtn']) $(id).disabled = !ok;
+  $('#playHint').textContent = ok ? `Ready: ${team.length} Pokémon on your team.` : 'Add at least one Pokémon (each needs a move) to battle.';
+}
+
+/* =====================================================================
+   Battle view: reads Pokémon Showdown protocol and animates it
+   ===================================================================== */
+let animSpeed = 1;
+const sleep = ms => new Promise(r => setTimeout(r, ms * animSpeed));
+const WEATHER_TEXT = {
+  RainDance: ['It started to rain!', 'Rain continues to fall.', 'The rain stopped.'],
+  PrimordialSea: ['A heavy rain began to fall!', 'The heavy rain continues.', 'The heavy rain has lifted!'],
+  SunnyDay: ['The sunlight turned harsh!', 'The sunlight is strong.', 'The harsh sunlight faded.'],
+  DesolateLand: ['The sunlight turned extremely harsh!', 'The sunlight is extremely harsh.', 'The extremely harsh sunlight faded!'],
+  Sandstorm: ['A sandstorm kicked up!', 'The sandstorm is raging.', 'The sandstorm subsided.'],
+  Snowscape: ['It started to snow!', 'Snow continues to fall.', 'The snow stopped.'],
+  Hail: ['It started to hail!', 'The hail is crashing down.', 'The hail stopped.'],
+  DeltaStream: ['Mysterious strong winds are protecting Flying-type Pokémon!', 'The strong winds blow.', 'The mysterious strong winds have dissipated!'],
+};
+const WEATHER_NAME = {RainDance:'Rain',PrimordialSea:'Heavy rain',SunnyDay:'Harsh sunlight',DesolateLand:'Extreme sun',Sandstorm:'Sandstorm',Snowscape:'Snow',Hail:'Hail',DeltaStream:'Strong winds'};
+const STATUS_TEXT = {brn:'was burned!', par:'is paralyzed! It may be unable to move!', slp:'fell asleep!', frz:'was frozen solid!', psn:'was poisoned!', tox:'was badly poisoned!'};
+const CURE_TEXT = {brn:'\'s burn was healed.', par:' was cured of paralysis.', slp:' woke up!', frz:' thawed out!', psn:' was cured of its poisoning.', tox:' was cured of its poisoning.'};
+const CANT_TEXT = {par:'is paralyzed! It can\'t move!', slp:'is fast asleep.', frz:'is frozen solid!', flinch:'flinched and couldn\'t move!', recharge:'must recharge!', nopp:'has no PP left for that move!', Taunt:'can\'t use that move after the taunt!', 'Focus Punch':'lost its focus and couldn\'t move!', Disable:'can\'t use that move because it is disabled!', Imprison:'can\'t use its sealed move!', Truant:'is loafing around!', 'Throat Chop':'can\'t use sound-based moves!', 'Heal Block':'can\'t use healing moves!', Encore:'is locked into its encored move!'};
+const SIDE_COND_NAMES = {stealthrock:'Stealth Rock', spikes:'Spikes', toxicspikes:'Toxic Spikes', stickyweb:'Sticky Web', reflect:'Reflect', lightscreen:'Light Screen', auroraveil:'Aurora Veil', tailwind:'Tailwind', safeguard:'Safeguard', mist:'Mist', luckychant:'Lucky Chant'};
+const effectName = s => String(s || '').replace(/^(move|ability|item|condition): ?/i, '').trim();
+
+class BattleView {
+  constructor(opts) {
+    this.opts = opts; // {me, myName, oppName, mode:'online'|'practice', onChoice, onForfeit, onChat, onRematch, onLeave}
+    this.me = opts.me; this.foe = opts.me === 'p1' ? 'p2' : 'p1';
+    this.sides = {p1: {name: '', mons: new Map(), active: null, size: 0, conds: new Map(), preview: []}, p2: {name: '', mons: new Map(), active: null, size: 0, conds: new Map(), preview: []}};
+    this.queue = Promise.resolve();
+    this.request = null; this.over = false; this.turn = 0; this.weather = null; this.fields = new Set(); this.teraOn = false;
+    this.root = $('#battle');
+    this.build();
+  }
+  build() {
+    const r = this.root; r.textContent = '';
+    const arena = h('div', {class: 'arena', id: 'arena'},
+      h('div', {class: 'fieldfx', id: 'fieldfx'}),
+      h('div', {class: 'plat foe'}), h('div', {class: 'plat me'}),
+      h('div', {class: 'mon foe', id: 'monFoe'}, h('img', {alt: '', id: 'imgFoe'}), h('div', {class: 'sub', text: '🧸'})),
+      h('div', {class: 'mon me', id: 'monMe'}, h('img', {alt: '', id: 'imgMe'}), h('div', {class: 'sub', text: '🧸'})),
+      this.hud('foe'), this.hud('me'),
+      h('div', {class: 'fieldlbl', id: 'fieldLbl'}), h('div', {class: 'turnlbl', id: 'turnLbl'}), h('div', {class: 'flashscreen', id: 'flashScreen'}));
+    const ctl = h('div', {class: 'panel ctl'}, h('div', {class: 'prompt', id: 'prompt', text: 'Starting battle…'}), h('div', {id: 'controls'}),
+      h('div', {class: 'row spread', style: 'margin-block-start:12px'},
+        h('div', {class: 'row'}, h('label', {class: 'small muted'}, 'Animation speed ',
+          (() => { const s = h('select', {on: {change: e => { animSpeed = Number(e.target.value); }}}); for (const [v, t] of [['1', 'Normal'], ['0.5', 'Fast'], ['0.2', 'Very fast']]) s.append(h('option', {value: v, text: t, selected: Number(v) === animSpeed})); return s; })())),
+        h('button', {type: 'button', class: 'btn ghost sm', id: 'forfeitBtn', text: 'Forfeit', on: {click: () => { if (!this.over && confirm('Forfeit this battle?')) this.opts.onForfeit(); }}})));
+    const side = h('div', {class: 'panel'}, h('div', {class: 'row spread'}, h('h2', {style: 'margin:0', text: 'Battle log'}), h('span', {class: 'muted small', id: 'vsLbl'})),
+      h('div', {class: 'log', id: 'log', style: 'margin-block-start:8px'}),
+      this.opts.mode === 'online' ? h('form', {class: 'chatrow', on: {submit: e => { e.preventDefault(); const i = $('#chatIn'); const t = i.value.trim().slice(0, 200); if (t) { this.opts.onChat(t); i.value = ''; } }}},
+        h('input', {type: 'text', id: 'chatIn', placeholder: 'Say something to your opponent…', maxLength: 200, autocomplete: 'off'}), h('button', {class: 'btn sm blue', type: 'submit', text: 'Send'})) : null);
+    r.append(h('div', {class: 'bwrap'}, h('div', null, arena, ctl), side));
+    $('#vsLbl').textContent = `${this.opts.myName} vs ${this.opts.oppName}`;
+  }
+  hud(which) {
+    return h('div', {class: 'hud ' + which, id: 'hud' + which},
+      h('div', {class: 'nm'}, h('span', {class: 'hn'}), h('span', {class: 'lv'})),
+      h('div', {class: 'tys'}),
+      h('div', {class: 'hpbar'}, h('div', {class: 'hpf'})),
+      h('div', {class: 'hpt'}, h('span', {class: 'hpn'}), h('span', {class: 'stt'})),
+      h('div', {class: 'chips'}), h('div', {class: 'balls'}));
+  }
+  /* ---------- protocol intake ---------- */
+  receive(chunks) {
+    const lines = []; let req = null; const errs = [];
+    for (const c of chunks) for (const line of String(c).split('\n')) {
+      if (line.startsWith('|request|')) { const j = line.slice(9).trim(); if (j) { try { req = JSON.parse(j); } catch (e) { console.warn('bad request', e); } } }
+      else if (line.startsWith('|error|')) errs.push(line.slice(7));
+      else if (line.startsWith('|')) lines.push(line);
+    }
+    this.queue = this.queue.then(async () => {
+      for (const l of lines) { try { await this.handle(l); } catch (e) { console.error('Could not show line', l, e); } }
+      for (const e of errs) this.log(e.replace(/^\[[^\]]+\]\s*/, ''), 'err');
+      if (req) this.setRequest(req);
+      else if (errs.length && this.request && !this.over) this.renderControls();
+    });
+  }
+  log(text, cls) { const p = h('p', {class: cls || ''}); p.textContent = text; const L = $('#log'); if (!L) return; L.append(p); L.scrollTop = L.scrollHeight; return p; }
+  logHTML(html, cls) { const p = h('p', {class: cls || '', html}); const L = $('#log'); if (!L) return; L.append(p); L.scrollTop = L.scrollHeight; }
+  chat(name, text, mine) { const p = h('p', {class: 'chat'}); p.append(h('b', {text: (mine ? 'You' : name) + ': '}), document.createTextNode(text)); const L = $('#log'); L.append(p); L.scrollTop = L.scrollHeight; }
+  /* ---------- state helpers ---------- */
+  sideOf(ident) { return String(ident).slice(0, 2); }
+  nameOf(ident) { const s = String(ident); const i = s.indexOf(': '); return i >= 0 ? s.slice(i + 2) : s; }
+  mon(ident) {
+    const side = this.sides[this.sideOf(ident)]; if (!side) return null;
+    const name = this.nameOf(ident);
+    if (!side.mons.has(name)) side.mons.set(name, {name, species: name, num: numOf(name), hp: 100, maxhp: 100, status: '', fainted: false, boosts: {}, tera: '', vol: new Set(), types: null});
+    return side.mons.get(name);
+  }
+  label(ident, cap) {
+    const s = this.sideOf(ident); const n = this.nameOf(ident);
+    const t = s === this.me ? n : `the opposing ${n}`;
+    return cap ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+  }
+  which(sideId) { return sideId === this.me ? 'me' : 'foe'; }
+  parseHP(str, mon) {
+    const [hpPart, status] = String(str || '').split(' ');
+    if (hpPart === '0' || status === 'fnt') { mon.hp = 0; mon.fainted = true; mon.status = ''; return; }
+    const [a, b] = hpPart.split('/').map(Number);
+    if (Number.isFinite(a)) mon.hp = a;
+    if (Number.isFinite(b) && b > 0) mon.maxhp = b;
+    mon.status = status && status !== 'fnt' ? status : '';
+    mon.fainted = false;
+  }
+  typesOf(mon) {
+    if (mon.tera && mon.tera !== 'Stellar') return [mon.tera];
+    if (mon.types) return mon.types;
+    const sp = Dex.species.get(mon.species); return sp.exists ? sp.types : ['Normal'];
+  }
+  /* ---------- drawing ---------- */
+  drawHud(sideId) {
+    const w = this.which(sideId); const side = this.sides[sideId]; const hud = $('#hud' + w); if (!hud) return;
+    const m = side.active ? side.mons.get(side.active) : null;
+    hud.style.visibility = m ? 'visible' : 'hidden';
+    if (m) {
+      hud.querySelector('.hn').textContent = m.name;
+      hud.querySelector('.lv').textContent = 'Lv100' + (m.tera ? ` · Tera ${m.tera}` : '');
+      const tys = hud.querySelector('.tys'); tys.textContent = ''; for (const t of this.typesOf(m)) tys.append(badge(t));
+      const pct = m.maxhp ? clamp(m.hp / m.maxhp * 100, 0, 100) : 0;
+      const f = hud.querySelector('.hpf'); f.style.width = pct + '%'; f.style.backgroundColor = pct > 50 ? '#22c55e' : pct > 20 ? '#f0b400' : '#ef4444';
+      hud.querySelector('.hpn').textContent = sideId === this.me ? `${m.hp} / ${m.maxhp} HP` : `${Math.round(pct)}%`;
+      const stt = hud.querySelector('.stt'); stt.textContent = '';
+      if (m.status) stt.append(h('span', {class: 'chip st-' + m.status, text: m.status.toUpperCase()}));
+      const chips = hud.querySelector('.chips'); chips.textContent = '';
+      for (const [k, v] of Object.entries(m.boosts)) if (v) chips.append(h('span', {class: 'chip ' + (v > 0 ? 'up' : 'down'), text: `${STAT_SHORT[k] || k} ${v > 0 ? '+' : ''}${v}`}));
+      for (const v of m.vol) chips.append(h('span', {class: 'chip', text: v}));
+    }
+    const balls = hud.querySelector('.balls'); balls.textContent = '';
+    const list = [...side.mons.values()];
+    const total = Math.max(side.size, list.length);
+    for (let i = 0; i < total; i++) { const mm = list[i]; balls.append(h('span', {class: mm ? (mm.fainted ? 'f' : '') : 'u'})); }
+  }
+  drawField() {
+    const fx = $('#fieldfx'); if (!fx) return;
+    fx.className = 'fieldfx' + (this.weather ? ` on fx-${this.weather}` : '');
+    const lbl = $('#fieldLbl'); lbl.textContent = '';
+    if (this.weather) lbl.append(h('span', {text: WEATHER_NAME[this.weather] || this.weather}));
+    for (const f of this.fields) lbl.append(h('span', {text: f}));
+    for (const sid of ['p1', 'p2']) for (const [c, n] of this.sides[sid].conds) lbl.append(h('span', {text: `${sid === this.me ? 'Your side' : 'Foe side'}: ${c}${n > 1 ? ' ×' + n : ''}`}));
+  }
+  monEl(sideId) { return $(sideId === this.me ? '#monMe' : '#monFoe'); }
+  imgEl(sideId) { return $(sideId === this.me ? '#imgMe' : '#imgFoe'); }
+  async anim(el, name, ms, extra) {
+    if (!el) return;
+    el.style.animation = 'none'; void el.offsetWidth;
+    el.style.animation = `${name} ${ms * animSpeed}ms ease ${extra || ''}`;
+    await sleep(ms);
+  }
+  floatText(sideId, text, color) {
+    const arena = $('#arena'); const mEl = this.monEl(sideId); if (!arena || !mEl) return;
+    const ar = arena.getBoundingClientRect(), mr = mEl.getBoundingClientRect();
+    const f = h('div', {class: 'float', text, style: `left:${mr.left - ar.left + mr.width / 2 - 30}px;top:${mr.top - ar.top + 10}px;color:${color || '#fff'}`});
+    arena.append(f); setTimeout(() => f.remove(), 1100);
+  }
+  async projectile(fromSide, toSide, type, cat) {
+    const arena = $('#arena'); const a = this.monEl(fromSide), b = this.monEl(toSide); if (!arena || !a || !b || !arena.animate) return;
+    const ar = arena.getBoundingClientRect(), r1 = a.getBoundingClientRect(), r2 = b.getBoundingClientRect();
+    const col = TYPE_COLORS[type] || '#fff';
+    const x1 = r1.left - ar.left + r1.width / 2, y1 = r1.top - ar.top + r1.height * 0.55, x2 = r2.left - ar.left + r2.width / 2, y2 = r2.top - ar.top + r2.height * 0.55;
+    const n = cat === 'Special' ? 5 : 1;
+    const parts = [];
+    for (let i = 0; i < n; i++) {
+      const p = h('div', {class: 'proj', style: `left:${x1 - 13}px;top:${y1 - 13}px;background:radial-gradient(circle,#fff 0%,${col} 45%,transparent 72%);box-shadow:0 0 18px ${col}`});
+      arena.append(p); parts.push(p);
+      p.animate([{transform: 'translate(0,0) scale(.6)', opacity: 0.2}, {transform: `translate(${(x2 - x1) / 2}px,${(y2 - y1) / 2 - 30}px) scale(1.3)`, opacity: 1, offset: 0.5}, {transform: `translate(${x2 - x1}px,${y2 - y1}px) scale(${cat === 'Special' ? 1.8 : 1})`, opacity: 0.9}],
+        {duration: 420 * animSpeed, delay: i * 60 * animSpeed, easing: 'ease-in', fill: 'forwards'});
+    }
+    await sleep(420 + (n - 1) * 60);
+    parts.forEach(p => p.remove());
+  }
+  async flash(color) { const f = $('#flashScreen'); if (!f || !f.animate) return; f.style.background = color || '#fff'; f.animate([{opacity: 0}, {opacity: 0.55}, {opacity: 0}], {duration: 350 * animSpeed}); await sleep(200); }
+  async showSwitchIn(sideId, mon) {
+    const img = this.imgEl(sideId); const box = this.monEl(sideId);
+    box.classList.toggle('tera', !!mon.tera); box.style.setProperty('--tera', TYPE_COLORS[mon.tera] || '#fff');
+    box.classList.toggle('hassub', mon.vol.has('Substitute'));
+    img.style.opacity = '1'; img.style.translate = '0 0';
+    setSprite(img, mon.num, sideId === this.me);
+    img.alt = mon.name;
+    await this.anim(img, 'enter', 650);
+  }
+  /* ---------- protocol handling ---------- */
+  async handle(line) {
+    const parts = line.slice(1).split('|');
+    const cmd = parts[0];
+    const args = []; const kw = {};
+    for (const p of parts.slice(1)) {
+      const m = /^\[(\w+)\]\s?(.*)$/.exec(p);
+      if (m && args.length >= 1) kw[m[1]] = m[2] === '' ? true : m[2]; else args.push(p);
+    }
+    const from = kw.from ? effectName(kw.from) : '';
+    switch (cmd) {
+      case 'player': if (args[0] && args[1] && this.sides[args[0]]) this.sides[args[0]].name = args[1]; break;
+      case 'teamsize': if (this.sides[args[0]]) { this.sides[args[0]].size = Number(args[1]) || 0; this.drawHud(args[0]); } break;
+      case 'clearpoke': this.sides.p1.preview = []; this.sides.p2.preview = []; break;
+      case 'poke': if (this.sides[args[0]]) this.sides[args[0]].preview.push(String(args[1]).split(', ')[0]); break;
+      case 'teampreview': break;
+      case 'start': this.log('The battle begins!', 'big'); break;
+      case 'switch': case 'drag': case 'replace': {
+        const sid = this.sideOf(args[0]); const side = this.sides[sid]; const mon = this.mon(args[0]);
+        const species = String(args[1]).split(', ')[0];
+        const prev = side.active ? side.mons.get(side.active) : null;
+        if (prev && prev !== mon) { prev.boosts = {}; prev.vol.clear(); prev.types = null; if (prev.transformed) { prev.species = prev.baseSpecies || prev.species; prev.num = numOf(prev.species); prev.transformed = false; } }
+        mon.species = species; mon.baseSpecies = species; mon.num = numOf(species); mon.boosts = {}; mon.vol.clear(); mon.types = null;
+        const tm = /tera:(\w+)/.exec(String(args[1])); if (tm) mon.tera = tm[1];
+        this.parseHP(args[2], mon);
+        side.active = mon.name;
+        if (cmd === 'switch') {
+          if (prev && prev !== mon && !prev.fainted) {
+            this.log(sid === this.me ? `Come back, ${prev.name}!` : `${side.name} withdrew ${prev.name}!`);
+            await this.anim(this.imgEl(sid), 'faint', 350 * 1);
+          }
+          this.log(sid === this.me ? `Go! ${mon.name}!` : `${side.name} sent out ${mon.name}!`);
+        } else if (cmd === 'drag') this.log(`${this.label(args[0], true)} was dragged out!`);
+        this.drawHud(sid);
+        await this.showSwitchIn(sid, mon);
+        break;
+      }
+      case 'detailschange': case '-formechange': {
+        const mon = this.mon(args[0]); const species = String(args[1]).split(', ')[0];
+        mon.species = species; mon.num = numOf(species) || mon.num;
+        if (cmd === 'detailschange') mon.baseSpecies = species;
+        const sid = this.sideOf(args[0]); setSprite(this.imgEl(sid), mon.num, sid === this.me); this.drawHud(sid);
+        if (kw.msg) this.log(`${this.label(args[0], true)} transformed!`);
+        break;
+      }
+      case 'move': {
+        const sid = this.sideOf(args[0]); const mv = Dex.moves.get(args[1]);
+        this.log(`${this.label(args[0], true)} used ${args[1]}!`);
+        if (kw.still || kw.notarget || kw.miss) { await sleep(350); break; }
+        const img = this.imgEl(sid);
+        await this.anim(img, sid === this.me ? 'lungeMe' : 'lungeFoe', 380);
+        const tgt = args[2] && /^p[12]/.test(args[2]) ? this.sideOf(args[2]) : (sid === this.me ? this.foe : this.me);
+        if (mv.exists && mv.category !== 'Status' && tgt !== sid) await this.projectile(sid, tgt, mv.type, mv.category);
+        else if (mv.exists && mv.category === 'Status') await this.anim(img, 'statusFx', 400);
+        break;
+      }
+      case 'cant': {
+        const reason = effectName(args[1]);
+        this.log(`${this.label(args[0], true)} ${CANT_TEXT[args[1]] || CANT_TEXT[reason] || `can't use ${args[2] || 'a move'}! (${reason})`}`);
+        await sleep(450); break;
+      }
+      case '-damage': case '-heal': case '-sethp': {
+        const sid = this.sideOf(args[0]); const mon = this.mon(args[0]);
+        const before = mon.maxhp ? mon.hp / mon.maxhp : 0;
+        this.parseHP(args[1], mon);
+        const after = mon.maxhp ? mon.hp / mon.maxhp : 0;
+        const diff = Math.round(Math.abs(before - after) * 100);
+        const who = this.label(args[0], true);
+        if (cmd === '-damage') {
+          if (from) {
+            const ofTxt = kw.of ? ` (${this.label(kw.of)})` : '';
+            const special = {'Stealth Rock': `Pointed stones dug into ${this.label(args[0])}!`, Spikes: `${who} was hurt by the spikes!`, brn: `${who} was hurt by its burn!`, psn: `${who} was hurt by poison!`, tox: `${who} was hurt by poison!`, Sandstorm: `${who} is buffeted by the sandstorm!`, Hail: `${who} is buffeted by the hail!`, Recoil: `${who} was damaged by the recoil!`, 'Leech Seed': `${who}'s health is sapped by Leech Seed!`, confusion: `It hurt itself in its confusion!`, 'Life Orb': `${who} lost some of its HP!`, 'Rocky Helmet': `${who} was hurt by the Rocky Helmet!`, 'Black Sludge': `${who} was hurt by the Black Sludge!`};
+            this.log(special[from] || `${who} was hurt by ${from}${ofTxt}!`);
+          }
+          this.log(`(${who} lost ${diff}% of its health.)`, 'minor');
+          await this.anim(this.imgEl(sid), 'hit', 500);
+          this.drawHud(sid); await sleep(450);
+        } else {
+          if (cmd === '-heal') {
+            const special = {Leftovers: `${who} restored a little HP using its Leftovers!`, 'Black Sludge': `${who} restored a little HP using its Black Sludge!`, drain: `${this.label(kw.of || args[0], true)} had its energy drained!`, 'Sitrus Berry': `${who} restored HP using its Sitrus Berry!`, 'Shell Bell': `${who} restored a little HP using its Shell Bell!`};
+            this.log(from ? (special[from] || `${who} restored HP using ${from}!`) : `${who} had its HP restored.`);
+            await this.anim(this.imgEl(sid), 'heal', 450);
+          }
+          this.drawHud(sid); await sleep(450);
+        }
+        break;
+      }
+      case 'faint': {
+        const sid = this.sideOf(args[0]); const mon = this.mon(args[0]); mon.hp = 0; mon.fainted = true; mon.status = '';
+        this.log(`${this.label(args[0], true)} fainted!`, 'big');
+        this.monEl(sid).classList.remove('hassub', 'tera');
+        await this.anim(this.imgEl(sid), 'faint', 700, 'forwards');
+        this.imgEl(sid).style.opacity = '0';
+        this.drawHud(sid); break;
+      }
+      case '-status': {
+        const mon = this.mon(args[0]); mon.status = args[1];
+        this.log(`${this.label(args[0], true)} ${STATUS_TEXT[args[1]] || 'was affected by ' + args[1]}${from ? ` (${from})` : ''}`);
+        await this.anim(this.imgEl(this.sideOf(args[0])), 'statusFx', 500); this.drawHud(this.sideOf(args[0])); break;
+      }
+      case '-curestatus': {
+        const mon = this.mon(args[0]); const st = args[1]; mon.status = '';
+        this.log(`${this.label(args[0], true)}${CURE_TEXT[st] || ' was cured.'}`); this.drawHud(this.sideOf(args[0])); break;
+      }
+      case '-cureteam': { const side = this.sides[this.sideOf(args[0])]; for (const m of side.mons.values()) m.status = ''; this.log('The team was cured of status problems!'); this.drawHud(this.sideOf(args[0])); break; }
+      case '-boost': case '-unboost': {
+        const mon = this.mon(args[0]); const stat = args[1]; const n = Number(args[2]) || 0; const up = cmd === '-boost';
+        mon.boosts[stat] = clamp((mon.boosts[stat] || 0) + (up ? n : -n), -6, 6);
+        const words = up ? ['won\'t go any higher!', 'rose!', 'rose sharply!', 'rose drastically!'] : ['won\'t go any lower!', 'fell!', 'harshly fell!', 'severely fell!'];
+        this.log(`${this.label(args[0], true)}'s ${STAT_NAMES[stat] || stat} ${words[Math.min(n, 3)]}${from ? ` (${from})` : ''}`);
+        const sid = this.sideOf(args[0]);
+        if (n) { this.floatText(sid, `${STAT_SHORT[stat] || stat} ${up ? '▲' : '▼'}`, up ? '#fca5a5' : '#93c5fd'); await this.anim(this.imgEl(sid), up ? 'boostUp' : 'boostDown', 500); }
+        this.drawHud(sid); break;
+      }
+      case '-setboost': { const mon = this.mon(args[0]); mon.boosts[args[1]] = Number(args[2]) || 0; this.log(`${this.label(args[0], true)}'s ${STAT_NAMES[args[1]] || args[1]} was set to ${args[2]}!${from ? ` (${from})` : ''}`); this.drawHud(this.sideOf(args[0])); await sleep(300); break; }
+      case '-clearboost': { const mon = this.mon(args[0]); mon.boosts = {}; this.log(`${this.label(args[0], true)}'s stat changes were removed!`); this.drawHud(this.sideOf(args[0])); break; }
+      case '-clearnegativeboost': { const mon = this.mon(args[0]); for (const k in mon.boosts) if (mon.boosts[k] < 0) mon.boosts[k] = 0; this.log(`${this.label(args[0], true)}'s lowered stats returned to normal!`); this.drawHud(this.sideOf(args[0])); break; }
+      case '-clearpositiveboost': { const mon = this.mon(args[0]); for (const k in mon.boosts) if (mon.boosts[k] > 0) mon.boosts[k] = 0; this.log(`${this.label(args[0], true)}'s stat boosts were removed!`); this.drawHud(this.sideOf(args[0])); break; }
+      case '-clearallboost': { for (const s of ['p1', 'p2']) { for (const m of this.sides[s].mons.values()) m.boosts = {}; this.drawHud(s); } this.log('All stat changes were eliminated!'); break; }
+      case '-invertboost': { const mon = this.mon(args[0]); for (const k in mon.boosts) mon.boosts[k] = -mon.boosts[k]; this.log(`${this.label(args[0], true)}'s stat changes were inverted!`); this.drawHud(this.sideOf(args[0])); break; }
+      case '-copyboost': { const a = this.mon(args[0]), b = this.mon(args[1]); a.boosts = {...b.boosts}; this.log(`${this.label(args[0], true)} copied ${this.label(args[1])}'s stat changes!`); this.drawHud(this.sideOf(args[0])); break; }
+      case '-swapboost': { const a = this.mon(args[0]), b = this.mon(args[1]); const t = a.boosts; a.boosts = b.boosts; b.boosts = t; this.log(`${this.label(args[0], true)} swapped stat changes with the target!`); this.drawHud('p1'); this.drawHud('p2'); break; }
+      case '-supereffective': this.log('It\'s super effective!', 'se'); await this.flash('#fff'); break;
+      case '-resisted': this.log('It\'s not very effective…', 'nve'); break;
+      case '-crit': this.log('A critical hit!', 'crit'); await this.flash('#ffe08a'); break;
+      case '-immune': this.log(`It doesn't affect ${this.label(args[0])}…${from ? ` (${from})` : ''}`); await sleep(350); break;
+      case '-miss': this.log(`${this.label(args[1] || args[0], true)} avoided the attack!`); await sleep(350); break;
+      case '-fail': this.log(from ? `${this.label(args[0], true)}'s ${from} prevented it! ` : 'But it failed!'); await sleep(350); break;
+      case '-notarget': this.log('But there was no target…'); break;
+      case '-nothing': this.log('But nothing happened!'); break;
+      case '-ohko': this.log('It\'s a one-hit KO!', 'crit'); break;
+      case '-hitcount': this.log(`The Pokémon was hit ${args[1]} time${args[1] === '1' ? '' : 's'}!`); break;
+      case '-weather': {
+        const w = args[0];
+        if (!w || w === 'none') { if (this.weather && WEATHER_TEXT[this.weather]) this.log(WEATHER_TEXT[this.weather][2]); this.weather = null; }
+        else if (kw.upkeep) { if (WEATHER_TEXT[w]) this.log(WEATHER_TEXT[w][1], 'minor'); this.weather = w; }
+        else { this.weather = w; this.log((WEATHER_TEXT[w] || [`The weather became ${w}!`])[0] + (from ? ` (${from})` : '')); }
+        this.drawField(); await sleep(350); break;
+      }
+      case '-fieldstart': { const f = effectName(args[0]); this.fields.add(f); this.log(`${f} started!${from ? ` (${from})` : ''}`); this.drawField(); await sleep(300); break; }
+      case '-fieldend': { const f = effectName(args[0]); this.fields.delete(f); this.log(`${f} ended.`); this.drawField(); break; }
+      case '-sidestart': {
+        const sid = this.sideOf(args[0]); const c = effectName(args[1]); const conds = this.sides[sid].conds; conds.set(c, (conds.get(c) || 0) + 1);
+        const whose = sid === this.me ? 'your team' : 'the opposing team';
+        const txt = {'Stealth Rock': `Pointed stones float in the air around ${whose}!`, Spikes: `Spikes were scattered on the ground all around ${whose}!`, 'Toxic Spikes': `Poison spikes were scattered on the ground all around ${whose}!`, 'Sticky Web': `A sticky web has been laid out on the ground around ${whose}!`, Reflect: `Reflect made ${whose} stronger against physical moves!`, 'Light Screen': `Light Screen made ${whose} stronger against special moves!`, 'Aurora Veil': `Aurora Veil made ${whose} stronger against physical and special moves!`, Tailwind: `The Tailwind blew from behind ${whose}!`, Safeguard: `${whose.charAt(0).toUpperCase() + whose.slice(1)} cloaked itself in a mystical veil!`};
+        this.log(txt[c] || `${c} started on ${whose}'s side!`); this.drawField(); await sleep(300); break;
+      }
+      case '-sideend': { const sid = this.sideOf(args[0]); const c = effectName(args[1]); this.sides[sid].conds.delete(c); this.log(`${c} wore off on ${sid === this.me ? 'your' : 'the opposing'} side.`); this.drawField(); break; }
+      case '-swapsideconditions': { const t = this.sides.p1.conds; this.sides.p1.conds = this.sides.p2.conds; this.sides.p2.conds = t; this.log('The effects on each side of the field were swapped!'); this.drawField(); break; }
+      case '-start': {
+        const mon = this.mon(args[0]); const e = effectName(args[1]); const who = this.label(args[0], true); const sid = this.sideOf(args[0]);
+        if (e === 'typechange') { mon.types = String(args[2] || '').split('/').filter(Boolean); this.log(`${who} became the ${args[2]} type!`); }
+        else if (e === 'Substitute') { mon.vol.add('Substitute'); this.monEl(sid).classList.add('hassub'); this.log(`${who} put in a substitute!`); }
+        else if (e === 'confusion') { mon.vol.add('Confused'); this.log(`${who} ${kw.fatigue ? 'became confused due to fatigue!' : 'became confused!'}`); }
+        else if (/^perish/.test(e)) this.log(`${who}'s perish count fell to ${e.replace('perish', '')}.`);
+        else if (/^stockpile/.test(e)) this.log(`${who} stockpiled ${e.replace('stockpile', '')}!`);
+        else if (e === 'Leech Seed') { mon.vol.add('Seeded'); this.log(`${who} was seeded!`); }
+        else if (e === 'Taunt') { mon.vol.add('Taunt'); this.log(`${who} fell for the taunt!`); }
+        else if (e === 'Encore') { mon.vol.add('Encore'); this.log(`${who} must do an encore!`); }
+        else if (e === 'Disable') this.log(`${who}'s ${args[2]} was disabled!`);
+        else if (e === 'Yawn') this.log(`${who} grew drowsy!`);
+        else if (e === 'Curse') this.log(`${who} was cursed!`);
+        else if (e === 'Focus Energy') this.log(`${who} is getting pumped!`);
+        else if (e === 'Attract') this.log(`${who} fell in love!`);
+        else if (e === 'Protosynthesis' || e === 'Quark Drive') this.log(`${who}'s ${STAT_NAMES[String(args[1]).replace(/^.*(atk|def|spa|spd|spe)$/, '$1')] || 'best stat'} was heightened!`);
+        else if (e === 'Dynamax') this.log(`${who} grew huge!`);
+        else { if (!/^(fallen|move: |ability: )/.test(args[1])) mon.vol.add(e); this.log(`${who}: ${e}${args[2] ? ' ' + effectName(args[2]) : ''}${from ? ` (${from})` : ''}`, 'minor'); }
+        this.drawHud(sid); await sleep(300); break;
+      }
+      case '-end': {
+        const mon = this.mon(args[0]); const e = effectName(args[1]); const who = this.label(args[0], true); const sid = this.sideOf(args[0]);
+        const map = {Substitute: 'Substitute', confusion: 'Confused', 'Leech Seed': 'Seeded', Taunt: 'Taunt', Encore: 'Encore'};
+        mon.vol.delete(map[e] || e);
+        if (e === 'Substitute') { this.monEl(sid).classList.remove('hassub'); this.log(`${who}'s substitute faded!`); }
+        else if (e === 'confusion') this.log(`${who} snapped out of its confusion!`);
+        else if (e === 'Taunt') this.log(`${who} shook off the taunt!`);
+        else if (e === 'Encore') this.log(`${who}'s encore ended!`);
+        else if (e === 'Disable') this.log(`${who}'s move is no longer disabled!`);
+        else this.log(`${who}'s ${e} ended.`, 'minor');
+        this.drawHud(sid); break;
+      }
+      case '-singleturn': case '-singlemove': {
+        const e = effectName(args[1]); const who = this.label(args[0], true);
+        if (/Protect|Detect|King's Shield|Spiky Shield|Baneful Bunker|Silk Trap|Burning Bulwark|Obstruct/.test(e)) this.log(`${who} protected itself!`);
+        else if (e === 'Endure') this.log(`${who} braced itself!`);
+        else if (e === 'Roost') { /* silent */ }
+        else this.log(`${who}: ${e}`, 'minor');
+        break;
+      }
+      case '-activate': {
+        const e = effectName(args[1]); const who = args[0] ? this.label(args[0], true) : '';
+        if (/Protect|Detect|King's Shield|Spiky Shield|Baneful Bunker|Silk Trap|Burning Bulwark/.test(e)) this.log(`${who} protected itself!`);
+        else if (e === 'Substitute') this.log(`The substitute took damage for ${this.label(args[0])}!`);
+        else if (e === 'confusion') this.log(`${who} is confused!`);
+        else if (e === 'Endure') this.log(`${who} endured the hit!`);
+        else if (e === 'Focus Sash' || e === 'Sturdy') this.log(`${who} hung on using its ${e}!`);
+        else if (e === 'Destiny Bond') this.log(`${who} took its attacker down with it!`);
+        else if (e === 'Trick' || e === 'Switcheroo') this.log(`${who} switched items with its target!`);
+        else this.log(`${who ? who + ': ' : ''}${e}${args[2] ? ' ' + effectName(args[2]) : ''}`, 'minor');
+        await sleep(200); break;
+      }
+      case '-ability': {
+        const mon = this.mon(args[0]); mon.ability = args[1];
+        const who = this.label(args[0], true);
+        if (args[1] === 'Intimidate' || kw.boost) this.log(`[${who}'s ${args[1]}]`, 'minor');
+        else this.log(`[${who}'s ${args[1]}]${from ? ` (${from})` : ''}`, 'minor');
+        this.floatText(this.sideOf(args[0]), args[1], '#fde68a'); await sleep(350); break;
+      }
+      case '-endability': this.log(`${this.label(args[0], true)}'s ability was suppressed!`, 'minor'); break;
+      case '-item': {
+        const who = this.label(args[0], true);
+        if (from === 'Trick' || from === 'Switcheroo') this.log(`${who} obtained ${args[1]}.`);
+        else if (from === 'Frisk') this.log(`${this.label(kw.of || args[0], true)} frisked its target and found ${args[1]}!`);
+        else this.log(`${who} has ${args[1]}.${from ? ` (${from})` : ''}`, 'minor');
+        break;
+      }
+      case '-enditem': {
+        const who = this.label(args[0], true); const it = args[1];
+        if (kw.eat) this.log(`${who} ate its ${it}!`);
+        else if (from === 'stealeat') this.log(`${this.label(kw.of || args[0], true)} stole and ate the target's ${it}!`);
+        else if (from) this.log(`${who} lost its ${it}! (${from})`);
+        else if (it === 'Air Balloon') this.log(`${who}'s Air Balloon popped!`);
+        else if (it === 'Focus Sash') { /* shown by -activate */ }
+        else this.log(`${who}'s ${it} was used up.`, 'minor');
+        break;
+      }
+      case '-terastallize': {
+        const sid = this.sideOf(args[0]); const mon = this.mon(args[0]); mon.tera = args[1];
+        const box = this.monEl(sid); box.style.setProperty('--tera', TYPE_COLORS[args[1]] || '#fff');
+        await this.flash(TYPE_COLORS[args[1]] || '#fff');
+        box.classList.add('tera');
+        this.log(`${this.label(args[0], true)} has Terastallized into the ${args[1]} type!`, 'big');
+        await this.anim(this.imgEl(sid), 'teraburst', 900); this.drawHud(sid); break;
+      }
+      case '-transform': {
+        const sid = this.sideOf(args[0]); const mon = this.mon(args[0]); const tgt = this.mon(args[1]);
+        mon.transformed = true; mon.baseSpecies = mon.baseSpecies || mon.species; mon.species = tgt.species; mon.num = tgt.num; mon.types = [...this.typesOf(tgt)];
+        mon.boosts = {...tgt.boosts};
+        this.log(`${this.label(args[0], true)} transformed into ${tgt.species}!`);
+        await this.flash('#c4b5fd'); setSprite(this.imgEl(sid), mon.num, sid === this.me); this.drawHud(sid); break;
+      }
+      case '-mustrecharge': this.log(`${this.label(args[0], true)} must recharge!`, 'minor'); break;
+      case '-prepare': this.log(`${this.label(args[0], true)} is preparing ${args[1]}!`); await sleep(300); break;
+      case '-zbroken': case '-primal': case '-burst': case '-mega': case '-zpower': break;
+      case '-hint': this.log('(' + args[0] + ')', 'minor'); break;
+      case '-message': case 'message': this.log(args[0]); break;
+      case '-center': case '-combine': case '-waiting': case '-fieldactivate': case 'upkeep': case 'gametype': case 'gen': case 'tier': case 'rule': case 'rated': case 'seed': case 't:': case 'j': case 'l': case 'n': case 'chat': case 'c': case 'raw': case 'html': case 'uhtml': case 'debug': case 'inactive': case 'inactiveoff': case 'timestamp': case 'done': case '': case 'sentchoice': case 'bigerror': case 'title': case 'join': case 'leave': case 'callback': case 'split': break;
+      case 'turn': {
+        this.turn = Number(args[0]) || this.turn + 1;
+        const p = h('p', {class: 'turn', text: `Turn ${this.turn}`}); const L = $('#log'); L.append(p); L.scrollTop = L.scrollHeight;
+        const t = $('#turnLbl'); t.textContent = `Turn ${this.turn}`; t.classList.remove('go'); void t.offsetWidth; t.classList.add('go');
+        await sleep(250); break;
+      }
+      case 'win': this.over = true; await sleep(400); this.endScreen(args[0]); break;
+      case 'tie': this.over = true; await sleep(400); this.endScreen(null); break;
+      default: if (cmd.startsWith('-')) this.log(`${cmd.slice(1)} ${args.map(effectName).join(' ')}`.trim(), 'minor');
+    }
+  }
+  /* ---------- requests & controls ---------- */
+  setRequest(req) {
+    this.request = req;
+    if (req.side) {
+      if (req.side.id && req.side.id !== this.me) { this.me = req.side.id; this.foe = this.me === 'p1' ? 'p2' : 'p1'; }
+      const side = this.sides[this.me];
+      side.size = Math.max(side.size, req.side.pokemon.length);
+      for (const p of req.side.pokemon) {
+        const mon = this.mon(p.ident); const species = String(p.details).split(', ')[0];
+        if (!mon.transformed) { mon.species = species; mon.num = numOf(species); }
+        this.parseHP(p.condition, mon);
+        if (p.terastallized) mon.tera = p.terastallized;
+        mon.teraType = p.teraType; mon.item = p.item; mon.reqIndex = 0;
+        mon.ability = p.ability || p.baseAbility;
+      }
+      this.drawHud(this.me);
+    }
+    if (!this.over) this.renderControls();
+  }
+  renderControls() {
+    const req = this.request; const box = $('#controls'); const prompt = $('#prompt'); if (!box || !req) return;
+    box.textContent = ''; this.teraOn = false;
+    if (this.over) { prompt.textContent = ''; return; }
+    if (req.wait) { prompt.textContent = 'Waiting for your opponent…'; return; }
+    if (req.teamPreview) { this.teamPreview(req); return; }
+    const pokes = req.side.pokemon;
+    const switchRow = (force) => {
+      const row = h('div', {class: 'switches'});
+      pokes.forEach((p, i) => {
+        const mon = this.mon(p.ident); const fainted = /fnt$/.test(p.condition) || p.condition === '0';
+        const pct = mon.maxhp ? clamp(mon.hp / mon.maxhp * 100, 0, 100) : 0;
+        const dis = p.active || fainted || (!force && req.active && req.active[0] && req.active[0].trapped);
+        const b = h('button', {type: 'button', class: 'swbtn', disabled: dis, title: `${mon.name} — ${fainted ? 'fainted' : p.condition}`,
+          on: {click: () => this.choose(`switch ${i + 1}`, `You chose to switch to ${mon.name}.`)}},
+          iconImg(numOf(String(p.details).split(', ')[0]), mon.name),
+          h('span', null, mon.name, h('span', {class: 'hpm'}, h('i', {style: `width:${pct}%;background:${pct > 50 ? '#22c55e' : pct > 20 ? '#f0b400' : '#ef4444'}`}))));
+        row.append(b);
+      });
+      return row;
+    };
+    if (req.forceSwitch && req.forceSwitch[0]) {
+      prompt.textContent = 'Choose a Pokémon to send in:';
+      box.append(switchRow(true));
+      return;
+    }
+    const act = req.active && req.active[0];
+    if (!act) { prompt.textContent = 'Waiting…'; return; }
+    const me = pokes.find(p => p.active); const myMon = me ? this.mon(me.ident) : null;
+    prompt.textContent = `What will ${myMon ? myMon.name : 'your Pokémon'} do?`;
+    const foeSide = this.sides[this.foe]; const foeMon = foeSide.active ? foeSide.mons.get(foeSide.active) : null;
+    const grid = h('div', {class: 'moves'});
+    act.moves.forEach((m, i) => {
+      const mv = Dex.moves.get(m.id || m.move);
+      const type = mv.exists ? mv.type : 'Normal';
+      let eff = '';
+      if (foeMon && mv.exists && mv.category !== 'Status') {
+        const tys = this.typesOf(foeMon);
+        if (!Dex.getImmunity(type, tys)) eff = 'No effect';
+        else { const e = Dex.getEffectiveness(type, tys); eff = e > 0 ? 'Super effective' : e < 0 ? 'Resisted' : ''; }
+      }
+      const pp = m.maxpp != null ? `PP ${m.pp}/${m.maxpp}` : '';
+      const desc = mv.exists ? `${type} · ${mv.category}${mv.basePower ? ' · ' + mv.basePower + ' BP' : ''}${mv.accuracy === true ? '' : ' · ' + mv.accuracy + '%'}` : '';
+      grid.append(h('button', {type: 'button', class: 'move', disabled: !!m.disabled || m.pp === 0, style: `background:${TYPE_COLORS[type] || '#777'}`,
+        title: mv.exists ? (mv.shortDesc || mv.desc || '') : '',
+        on: {click: () => this.choose(`move ${i + 1}${this.teraOn ? ' terastallize' : ''}`, `You chose ${m.move}${this.teraOn ? ' with Terastallization' : ''}.`)}},
+        h('b', {text: m.move}), eff ? h('span', {class: 'eff', text: eff}) : null, h('small', {text: [desc, pp].filter(Boolean).join(' · ')})));
+    });
+    box.append(grid);
+    const extras = h('div', {class: 'row', style: 'margin-block-start:10px'});
+    if (act.canTerastallize) {
+      const t = act.canTerastallize;
+      const btn = h('button', {type: 'button', class: 'terabtn', style: `--tera:${TYPE_COLORS[t] || '#fff'}`, text: `✦ Terastallize (${t})`,
+        on: {click: () => { this.teraOn = !this.teraOn; btn.classList.toggle('on', this.teraOn); btn.style.background = this.teraOn ? (TYPE_COLORS[t] || '#555') : ''; }}});
+      extras.append(btn);
+    }
+    if (act.trapped) extras.append(h('span', {class: 'muted small', text: 'You are trapped and can\'t switch out.'}));
+    box.append(extras);
+    box.append(switchRow(false));
+  }
+  teamPreview(req) {
+    const prompt = $('#prompt'); prompt.textContent = 'Team preview: choose your lead Pokémon.';
+    const foeList = this.sides[this.foe].preview;
+    const ov = h('div', {class: 'overlay', id: 'previewOv'});
+    const mine = h('div', {class: 'prevteam'});
+    req.side.pokemon.forEach((p, i) => {
+      const sp = String(p.details).split(', ')[0];
+      mine.append(h('button', {type: 'button', class: 'prevmon', on: {click: () => {
+        const order = [i + 1, ...req.side.pokemon.map((_, k) => k + 1).filter(k => k !== i + 1)].join('');
+        ov.remove(); this.choose(`team ${order}`, `${sp} will lead.`);
+      }}}, iconImg(numOf(sp), sp), sp));
+    });
+    const theirs = h('div', {class: 'prevteam'});
+    for (const sp of foeList) theirs.append(h('div', {class: 'prevmon'}, iconImg(numOf(sp), sp), sp));
+    ov.append(h('div', {class: 'box'}, h('h2', {text: `${this.sides[this.foe].name || 'Opponent'}'s team`}), theirs,
+      h('h2', {text: 'Your team — tap the Pokémon you want to lead with'}), mine));
+    document.body.append(ov);
+  }
+  choose(choice, note) {
+    if (this.over) return;
+    $('#controls').textContent = ''; $('#prompt').textContent = 'Waiting for your opponent…';
+    if (note) this.log(note, 'minor');
+    this.request = Object.assign({}, this.request, {wait: true});
+    this.opts.onChoice(choice);
+  }
+  endScreen(winner) {
+    const box = $('#controls'); const prompt = $('#prompt'); if (box) box.textContent = '';
+    const pv = $('#previewOv'); if (pv) pv.remove();
+    const iWon = winner && winner === this.sides[this.me].name;
+    const title = winner ? (iWon ? '🏆 You won!' : `${winner} won the battle!`) : 'The battle ended in a tie.';
+    prompt.textContent = title;
+    this.log(title, 'big');
+    const row = h('div', {class: 'row'});
+    if (this.opts.mode === 'online') row.append(h('button', {type: 'button', class: 'btn', id: 'rematchBtn', text: 'Rematch', on: {click: e => { e.target.disabled = true; e.target.textContent = 'Waiting for opponent…'; this.opts.onRematch(); }}}));
+    else row.append(h('button', {type: 'button', class: 'btn', text: 'Battle again', on: {click: () => this.opts.onRematch()}}));
+    row.append(h('button', {type: 'button', class: 'btn ghost', text: 'Back to team builder', on: {click: () => this.opts.onLeave()}}));
+    box.append(row);
+    const fb = $('#forfeitBtn'); if (fb) fb.disabled = true;
+  }
+  ended(msg) {
+    if (this.over) { this.log(msg, 'err'); return; }
+    this.over = true; this.log(msg, 'err');
+    const box = $('#controls'); box.textContent = ''; $('#prompt').textContent = msg;
+    box.append(h('button', {type: 'button', class: 'btn ghost', text: 'Back to team builder', on: {click: () => this.opts.onLeave()}}));
+    const fb = $('#forfeitBtn'); if (fb) fb.disabled = true;
+  }
+}
+
+/* =====================================================================
+   Battle engine wrapper (runs on the host's browser)
+   ===================================================================== */
+function pump(stream, cb) {
+  // Group everything the simulator emits in one step into a single packet,
+  // so the request always arrives together with the turn it belongs to.
+  let buf = []; let timer = null;
+  (async () => {
+    for await (const chunk of stream) {
+      buf.push(chunk);
+      if (!timer) timer = setTimeout(() => { const b = buf; buf = []; timer = null; try { cb(b); } catch (e) { console.error(e); } }, 25);
+    }
+  })().catch(e => console.error('stream ended', e));
+}
+class SimBattle {
+  constructor(o) { this.o = o; this.over = false; }
+  start() {
+    const stream = new BattleStreams.BattleStream();
+    this.streams = BattleStreams.getPlayerStreams(stream);
+    pump(this.streams.p1, this.o.onP1);
+    if (this.o.ai) { this.ai = new RandomPlayerAI(this.streams.p2); this.ai.start().catch(e => console.error(e)); }
+    else pump(this.streams.p2, this.o.onP2);
+    (async () => { for await (const chunk of this.streams.omniscient) if (/(^|\n)\|(win|tie)(\||$)/m.test(chunk)) this.over = true; })().catch(() => {});
+    const spec = {formatid: FORMAT};
+    this.streams.omniscient.write(`>start ${JSON.stringify(spec)}\n>player p1 ${JSON.stringify({name: this.o.p1.name, team: this.o.p1.team})}\n>player p2 ${JSON.stringify({name: this.o.p2.name, team: this.o.p2.team})}`);
+  }
+  choose(side, choice) {
+    if (this.over || !this.streams) return;
+    const c = String(choice).replace(/[\r\n|]/g, ' ').slice(0, 60).trim();
+    if (!/^(move [1-4]( terastallize)?|switch [1-6]|team [1-6]{1,6}|default|pass)$/.test(c)) return;
+    this.streams[side].write(c);
+  }
+  forfeit(side) { if (this.over || !this.streams) return; this.over = true; this.streams.omniscient.write(`>forcelose ${side}`); }
+}
+
+/* =====================================================================
+   Online play (peer-to-peer)
+   ===================================================================== */
+const Net = {peer: null, conn: null, role: null, sim: null, view: null, myName: '', oppName: '', myTeam: null, oppTeam: null, rematch: {me: false, opp: false}, code: ''};
+function newCode() {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = '';
+  for (const x of crypto.getRandomValues(new Uint32Array(6))) s += A[x % A.length];
+  return s;
+}
+function show(screen) {
+  for (const id of ['#home', '#lobby', '#battle']) $(id).classList.toggle('hidden', id !== screen);
+  window.scrollTo(0, 0);
+}
+function lobbyMsg(text, isErr, extra) {
+  const L = $('#lobby'); L.textContent = '';
+  L.append(h('div', {class: 'panel', style: 'max-width:640px;margin-inline:auto;text-align:center'},
+    h('h2', {text: Net.role === 'host' ? 'Online battle' : 'Joining battle'}),
+    h('div', {class: 'notice' + (isErr ? ' err' : ''), text}), extra || null,
+    h('div', {class: 'row', style: 'justify-content:center;margin-block-start:14px'}, h('button', {type: 'button', class: 'btn ghost', text: 'Cancel', on: {click: leave}}))));
+  show('#lobby');
+}
+function cleanupNet() {
+  try { if (Net.conn) Net.conn.close(); } catch (e) { /* ignore */ }
+  try { if (Net.peer) Net.peer.destroy(); } catch (e) { /* ignore */ }
+  Object.assign(Net, {peer: null, conn: null, role: null, sim: null, view: null, oppTeam: null, rematch: {me: false, opp: false}, code: ''});
+}
+function leave() {
+  if (Net.sim && !Net.sim.over && Net.role === 'host') Net.sim.forfeit('p1');
+  if (Net.role === 'guest' && Net.conn && Net.view && !Net.view.over) { try { Net.conn.send({t: 'forfeit'}); } catch (e) { /* ignore */ } }
+  cleanupNet();
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  show('#home');
+}
+function send(msg) { try { if (Net.conn && Net.conn.open) Net.conn.send(msg); } catch (e) { console.error(e); } }
+
+function peerErrorText(err) {
+  const t = err && err.type;
+  if (t === 'peer-unavailable') return 'No open battle was found with that code. Check the code and make sure your friend is still on the waiting screen.';
+  if (t === 'unavailable-id') return 'That battle code is already in use. Please try again.';
+  if (t === 'network' || t === 'server-error' || t === 'socket-error' || t === 'socket-closed') return 'Could not reach the matchmaking server. Check your internet connection and try again.';
+  if (t === 'browser-incompatible') return 'This browser does not support online battles. Try a recent Chrome, Edge, Firefox or Safari.';
+  if (t === 'webrtc') return 'A direct connection to your opponent could not be made (some school or work networks block this). Try another network.';
+  return 'Connection problem: ' + (err && err.message ? err.message : 'unknown error');
+}
+
+async function hostOnline() {
+  const v = await validateTeam(team); if (v.error) { flashNotice(v.error, true); return; }
+  cleanupNet();
+  Net.role = 'host'; Net.myName = playerName(); Net.myTeam = v.team; Net.code = newCode();
+  lobbyMsg('Connecting to the matchmaking server…');
+  const peer = new Peer(PEER_PREFIX + Net.code, PEER_OPTIONS); Net.peer = peer;
+  peer.on('open', () => {
+    const link = `${location.origin}${location.pathname}#join=${Net.code}`;
+    const linkIn = h('input', {type: 'text', value: link, readOnly: true, style: 'width:100%;margin-block-start:10px'});
+    lobbyMsg('Share this code or link with your friend. The battle starts as soon as they join.', false,
+      h('div', {style: 'margin-block-start:14px'}, h('div', {class: 'codebox', text: Net.code}), linkIn,
+        h('div', {class: 'row', style: 'justify-content:center;margin-block-start:8px'},
+          h('button', {type: 'button', class: 'btn blue sm', text: 'Copy link', on: {click: async e => { try { await navigator.clipboard.writeText(link); e.target.textContent = 'Copied!'; } catch (err) { linkIn.select(); } }}})),
+        h('p', {class: 'muted small', text: 'Waiting for your opponent…'})));
+  });
+  peer.on('error', err => { if (Net.peer !== peer) return; if (!Net.view) lobbyMsg(peerErrorText(err), true); else Net.view.log(peerErrorText(err), 'err'); });
+  peer.on('connection', conn => {
+    if (Net.peer !== peer) return;
+    if (Net.conn) { conn.on('open', () => { conn.send({t: 'busy'}); setTimeout(() => conn.close(), 800); }); return; }
+    Net.conn = conn;
+    conn.on('data', msg => onHostMsg(conn, msg));
+    conn.on('close', () => onConnClosed(conn));
+    conn.on('error', e => console.error(e));
+  });
+}
+async function onHostMsg(conn, msg) {
+  if (conn !== Net.conn || !msg || typeof msg !== 'object') return;
+  switch (msg.t) {
+    case 'hello': {
+      if (msg.v !== APP_VERSION) { conn.send({t: 'reject', reason: `Version mismatch (host ${APP_VERSION}, you ${esc(msg.v)}). Both players should reload the page.`}); setTimeout(() => conn.close(), 800); Net.conn = null; return; }
+      const v = await validateTeam(msg.team);
+      if (v.error) { conn.send({t: 'reject', reason: 'Your team was rejected: ' + v.error}); setTimeout(() => conn.close(), 800); Net.conn = null; return; }
+      let name = String(msg.name || 'Trainer').replace(/[|\n\r]/g, '').slice(0, 18).trim() || 'Trainer';
+      if (name === Net.myName) name += ' (2)';
+      Net.oppName = name; Net.oppTeam = v.team;
+      startHostBattle();
+      break;
+    }
+    case 'choice': if (Net.sim && typeof msg.c === 'string') Net.sim.choose('p2', msg.c); break;
+    case 'forfeit': if (Net.sim) Net.sim.forfeit('p2'); break;
+    case 'chat': if (Net.view && typeof msg.text === 'string') Net.view.chat(Net.oppName, msg.text.slice(0, 200), false); break;
+    case 'rematch': Net.rematch.opp = true; if (Net.view) Net.view.log(`${Net.oppName} wants a rematch!`, 'chat'); maybeRematch(); break;
+  }
+}
+function startHostBattle() {
+  Net.rematch = {me: false, opp: false};
+  const pv = $('#previewOv'); if (pv) pv.remove();
+  Net.view = new BattleView({me: 'p1', myName: Net.myName, oppName: Net.oppName, mode: 'online',
+    onChoice: c => Net.sim && Net.sim.choose('p1', c), onForfeit: () => Net.sim && Net.sim.forfeit('p1'),
+    onChat: t => { send({t: 'chat', text: t}); Net.view.chat(Net.myName, t, true); },
+    onRematch: () => { Net.rematch.me = true; send({t: 'rematch'}); maybeRematch(); }, onLeave: leave});
+  show('#battle');
+  send({t: 'start', you: 'p2', oppName: Net.myName, yourName: Net.oppName});
+  Net.sim = new SimBattle({p1: {name: Net.myName, team: Net.myTeam}, p2: {name: Net.oppName, team: Net.oppTeam},
+    onP1: chunks => Net.view && Net.view.receive(chunks), onP2: chunks => send({t: 'packet', chunks})});
+  Net.sim.start();
+}
+function maybeRematch() { if (Net.role === 'host' && Net.rematch.me && Net.rematch.opp && Net.sim && Net.sim.over) startHostBattle(); }
+
+async function joinOnline(rawCode) {
+  const code = String(rawCode || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (code.length !== 6) { flashNotice('Enter the 6-character battle code from your friend.', true); return; }
+  const v = await validateTeam(team); if (v.error) { flashNotice(v.error, true); return; }
+  cleanupNet();
+  Net.role = 'guest'; Net.myName = playerName(); Net.myTeam = v.team; Net.code = code;
+  lobbyMsg('Connecting…');
+  const peer = new Peer(PEER_OPTIONS); Net.peer = peer;
+  peer.on('open', () => {
+    const conn = peer.connect(PEER_PREFIX + code, {reliable: true, serialization: 'json'});
+    Net.conn = conn;
+    const timeout = setTimeout(() => { if (Net.conn === conn && !conn.open) lobbyMsg('Could not connect to that battle. Check the code and try again.', true); }, 20000);
+    conn.on('open', () => { clearTimeout(timeout); lobbyMsg('Connected! Waiting for the battle to start…'); conn.send({t: 'hello', v: APP_VERSION, name: Net.myName, team: Net.myTeam}); });
+    conn.on('data', msg => onGuestMsg(conn, msg));
+    conn.on('close', () => onConnClosed(conn));
+    conn.on('error', e => console.error(e));
+  });
+  peer.on('error', err => { if (Net.peer !== peer) return; if (!Net.view) lobbyMsg(peerErrorText(err), true); else Net.view.log(peerErrorText(err), 'err'); });
+}
+function onGuestMsg(conn, msg) {
+  if (conn !== Net.conn || !msg || typeof msg !== 'object') return;
+  switch (msg.t) {
+    case 'busy': lobbyMsg('That battle already has two players.', true); break;
+    case 'reject': lobbyMsg(String(msg.reason || 'The host rejected the connection.'), true); break;
+    case 'start': {
+      Net.oppName = String(msg.oppName || 'Opponent').slice(0, 24);
+      const pv = $('#previewOv'); if (pv) pv.remove();
+      Net.view = new BattleView({me: 'p2', myName: String(msg.yourName || Net.myName), oppName: Net.oppName, mode: 'online',
+        onChoice: c => send({t: 'choice', c}), onForfeit: () => send({t: 'forfeit'}),
+        onChat: t => { send({t: 'chat', text: t}); Net.view.chat(Net.myName, t, true); },
+        onRematch: () => send({t: 'rematch'}), onLeave: leave});
+      show('#battle');
+      break;
+    }
+    case 'packet': if (Net.view && Array.isArray(msg.chunks)) Net.view.receive(msg.chunks.filter(c => typeof c === 'string')); break;
+    case 'chat': if (Net.view && typeof msg.text === 'string') Net.view.chat(Net.oppName, msg.text.slice(0, 200), false); break;
+    case 'rematch': if (Net.view) Net.view.log(`${Net.oppName} wants a rematch!`, 'chat'); break;
+  }
+}
+function onConnClosed(conn) {
+  if (conn !== Net.conn) return;
+  if (Net.view) {
+    if (Net.role === 'host' && Net.sim && !Net.sim.over) Net.sim.forfeit('p2');
+    Net.view.ended(`${Net.oppName || 'Your opponent'} disconnected.`);
+  } else if (Net.role === 'guest') lobbyMsg('The connection closed before the battle started.', true);
+  else if (Net.role === 'host') { Net.conn = null; }
+}
+
+/* ---------- practice vs computer ---------- */
+async function practice() {
+  const v = await validateTeam(team); if (v.error) { flashNotice(v.error, true); return; }
+  cleanupNet();
+  Net.role = 'practice'; Net.myName = playerName();
+  const pool = KANTO.filter(s => !s.nfe && !v.team.some(t => toID(t.species) === s.id));
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const cpu = [];
+  for (const sp of pool.slice(0, v.team.length >= 6 ? 6 : Math.max(v.team.length, 3))) { const s = autoSet(sp, await legalMoves(sp.name)); delete s.preset; cpu.push(s); }
+  const cv = await validateTeam(cpu);
+  const startIt = () => {
+    const pv = $('#previewOv'); if (pv) pv.remove();
+    Net.view = new BattleView({me: 'p1', myName: Net.myName, oppName: 'Computer', mode: 'practice',
+      onChoice: c => Net.sim && Net.sim.choose('p1', c), onForfeit: () => Net.sim && Net.sim.forfeit('p1'), onChat: () => {}, onRematch: () => startIt(), onLeave: leave});
+    show('#battle');
+    Net.sim = new SimBattle({p1: {name: Net.myName === 'Computer' ? 'Trainer' : Net.myName, team: v.team}, p2: {name: 'Computer', team: cv.team || cpu}, ai: true, onP1: chunks => Net.view.receive(chunks)});
+    Net.sim.start();
+  };
+  startIt();
+}
+
+/* =====================================================================
+   Start-up
+   ===================================================================== */
+async function init() {
+  if (KANTO.length < 151 || !(await legalMoves('Pikachu')).moves.length) {
+    $('#loadMsg').textContent = `The battle engine loaded but its Pokémon data looks incomplete (${KANTO.length} Pokémon found). Please reload the page; if this keeps happening, the engine version needs updating.`;
+    window.__kantoReady = true; return;
+  }
+  loadTeam();
+  try { $('#playerName').value = localStorage.getItem(NAME_KEY) || ''; } catch (e) { /* ignore */ }
+  $('#playerName').addEventListener('input', () => { try { localStorage.setItem(NAME_KEY, $('#playerName').value); } catch (e) { /* ignore */ } });
+  $('#dexSearch').addEventListener('input', renderDex);
+  $('#randomBtn').addEventListener('click', randomTeam);
+  $('#clearBtn').addEventListener('click', () => { if (!team.length || confirm('Clear your whole team?')) { team = []; selected = -1; saveTeam(); renderTeam(); renderDex(); } });
+  $('#hostBtn').addEventListener('click', hostOnline);
+  $('#joinForm').addEventListener('submit', e => { e.preventDefault(); joinOnline($('#joinCode').value); });
+  $('#practiceBtn').addEventListener('click', practice);
+  $('#dexCount').textContent = `${KANTO.length} Pokémon`;
+  if (team.length) selected = 0;
+  renderDex(); renderTeam();
+  const m = /#join=([A-Za-z0-9]{6})/.exec(location.hash);
+  if (m) { $('#joinCode').value = m[1].toUpperCase(); $('#joinCode').scrollIntoView({block: 'center'}); flashNotice('You were invited to a battle! Build or check your team, then press Join.'); }
+  $('#loading').classList.add('hidden'); $('#home').classList.remove('hidden');
+  window.__kantoReady = true;
+}
+init().catch(e => { console.error(e); $('#loadMsg').textContent = 'Something went wrong while starting: ' + (e && e.message || e); window.__kantoReady = true; });
+
+</script>
+</body>
+</html>
